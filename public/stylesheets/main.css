@@ -18,8 +18,71 @@ html, body {
         height: 100%;
         margin: 0;
         padding: 0;
+        font-family: calibri, tahoma, arial, sans-serif;
+        color: black;
+        font-size: 1rem;
+        bbbbackground-color: rgba(224,255,224,1);
+}
+
+a {
+        text-decoration: none;
+        font-weight: normal;
+        color: darkblue;
 }
 
 
-/* @import "https://unpkg.com/leaflet@1.3.1/dist/leaflet.css" */
+nav {
+        padding: 0px 15px 0px 30px;
+}
+
+
+	.topnav {	 
+		position: fixed;
+		width: auto;
+		padding: 0px;
+		top: 0px;
+		right: 0px;
+		overflow: visible;
+		z-index:500;
+		
+	}
+	
+	.topnav a {
+		display: none;	
+		float: right;
+		top: 0px;
+		right: 0px;
+        font-size: 2rem;
+	}
+ 
+	.topnav a.navicon {
+		display: block;           		
+		top: 0px;
+		right: 0px;
+		background-color: #eee;	
+		/* background-color:#20124d; */
+		/* color: white; */
+    }
+  
+ /* responsive */
+	.topnav.responsive a {
+		display: block;	
+		float: none;
+		clear: both;
+		top: 0px;
+		right: 0px;
+		background-color: #eee;	
+	}
+  
+	.topnav.responsive a.navicon {
+		float: right;
+		top: 0px;
+		right: 0px;		
+		background-color: #eee;	
+	}  
+	
+	 .topnav.responsive a:hover {
+		background-color:#ddd;
+		/* color: white; */
+	}
 
