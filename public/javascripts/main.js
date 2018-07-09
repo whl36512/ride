@@ -31,3 +31,75 @@ function toggleDisplayByCheck(checkBox) {
 	false;
 }
 
+
+function geocode(inputString, elem) {
+	var url="https://nominatim.openstreetmap.org/search/"
+//	input = 135%20pilkington%20avenue,%20birmingham
+	query="?format=json&polygon=0&addressdetails=0" ;
+	var urlEncoded = url+encodeURIComponent(inputString.trim())+query ;
+	console.log("geocode urlEncoded="+urlEncoded)
+	sendRequest("", "GET", urlEncoded, elem) ;
+	return false;
+}
+
+
+function alertContents(httpRequest, afterResponseAction) {
+
+        if (httpRequest.readyState === XMLHttpRequest.DONE) {
+                if (httpRequest.status === 200) {
+                        console.log("httpRequest.responseText=" + httpRequest.responseText );
+                        window.location.reload(true);
+
+                }
+                else {
+                        alert('ERROR 20170117005623: return status '+ httpRequest.status + "\n" + httpRequest.responseText.replace(/\s+/g,''));
+                }
+        }
+}
+
+function parseGeocoded(responsText) {
+}
+
+function callbackGeocode(httpRequest, elem) {
+
+        if (httpRequest.readyState === XMLHttpRequest.DONE) {
+                if (httpRequest.status === 200) {
+                        console.log("callbackGeocode httpRequest.responseText=" + httpRequest.responseText );
+			var responseTextJson=JSON.parse(httpRequest.responseText) ;
+			console.log("callbackGeocode responseTextJson.length=" +  responseTextJson.length );
+			var readOnlyInput= elem.closest("dl" ).getElementsByClassName("readOnly").item(0) ;
+			console.log("callbackGeocode elem.parentElement" +  elem.closest("dl" ).getElementsByClassName("readOnly").item(0));
+	                readOnlyInput.value=responseTextJson[0].display_name;
+			
+
+                }
+                else {
+                        alert('ERROR 20170117005623: return status '+ httpRequest.status + "\n" + httpRequest.responseText.replace(/\s+/g,''));
+                }
+        }
+}
+
+
+
+
+
+function sendRequest(urlEncoded, method, action, elem)
+{
+	// if GET, urlEncoded is empty and action has the full url
+	// if POST, urlEncoded is the qury part 
+        console.log("sendRequest urlEncoded="+urlEncoded)
+        var xhr = new XMLHttpRequest();
+
+        xhr.onreadystatechange = function(){ callbackGeocode(xhr, elem); } ;
+
+        xhr.open (method, action, true);
+	if ( method == "POST" )
+	{
+		xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+		xhr.setRequestHeader('Content-Length', urlEncoded.length);
+	}
+        xhr.send (urlEncoded);
+        console.log("after sendRequest");
+        return false;
+}
+

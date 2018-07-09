@@ -14,25 +14,23 @@
       <br/>
       New Trip Information
       <form action="/saveOffer" method="POST" >
-        <dl class=" error" id="start_loc_field"> <dt><label for="start_loc">From (required) </label></dt>
+        <dl class=" error" id="start_loc_field"> 
+          <dt><label for="start_loc">From (required) </label></dt>
           <dd>
-              <input type="text" id="start_loc" name="start_loc" value="" size="30" placeholder="From"  required />
+              <input type="text" id="start_loc" name="start_loc" value="" size="50" placeholder="From"  required onblur="geocode(this.value, this)"/>
+          </dd>
+          <dd>
+              <input type="text" class="readOnly display_name" name="start_display_name" value="" size="50" readOnly=true />
           </dd>
         </dl>
-        <dl class=" error" id="start_display_name"> 
-          <dd>
-              <input type="text" class="readOnly" id="start_display_name" name="start_display_name" value="" size="30" readOnly=true />
-          </dd>
-        </dl>
+
         <dl class=" error" id="end_loc_field">
           <dt><label for="to">To (required) </label></dt>
           <dd>
-            <input type="text" id="end_loc" name="end_loc" value="" size="30" placeholder="To" required />
+            <input type="text" id="end_loc" name="end_loc" value="" size="50" placeholder="To" required onblur="geocode(this.value, this)" />
           </dd>
-        </dl>
-        <dl class=" error" id="end_display_name"> 
           <dd>
-              <input type="text" class="readOnly"  id="end_display_name" name="end_display_name" value="" size="30" readOnly=true />
+              <input type="text" class="readOnly display_name" name="end_display_name" value="" size="50" readOnly=true />
           </dd>
         </dl>
         <dl class=" error" id="trip_start_field">
@@ -51,7 +49,7 @@
         <dl class=" error" id="seats_field">
           <dt><label for="seats">Available Seats (required, min 1, max 6)</label></dt>
           <dd>
-		<input type="number" id="seats" name="seats" value=3 min="1" max="6" step=1 />
+		<input type="number" id="seats" name="seats" value=3 min="1" max="6" step=1 size=1 />
           </dd>
         </dl>
 
