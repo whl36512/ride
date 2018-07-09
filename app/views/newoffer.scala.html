@@ -1,0 +1,116 @@
+
+
+@()
+
+@{ //(implicit request: RequestHeader, m: Messages) 
+}
+
+@main("Welcome to Play") {
+
+<div  id=newoffer >
+  <dl>
+    <dd>
+      <div class=formentry>
+      <br/>
+      New Trip Information
+      <form action="/saveOffer" method="POST" >
+        <dl class=" error" id="start_loc_field"> <dt><label for="start_loc">From (required) </label></dt>
+          <dd>
+              <input type="text" id="start_loc" name="start_loc" value="" size="30" placeholder="From"  required />
+          </dd>
+        </dl>
+        <dl class=" error" id="start_display_name"> 
+          <dd>
+              <input type="text" class="readOnly" id="start_display_name" name="start_display_name" value="" size="30" readOnly=true />
+          </dd>
+        </dl>
+        <dl class=" error" id="end_loc_field">
+          <dt><label for="to">To (required) </label></dt>
+          <dd>
+            <input type="text" id="end_loc" name="end_loc" value="" size="30" placeholder="To" required />
+          </dd>
+        </dl>
+        <dl class=" error" id="end_display_name"> 
+          <dd>
+              <input type="text" class="readOnly"  id="end_display_name" name="end_display_name" value="" size="30" readOnly=true />
+          </dd>
+        </dl>
+        <dl class=" error" id="trip_start_field">
+          <dt><label for="trip_start">Date (required)</label></dt>
+          <dd>
+          <input type="date" id="trip_start" name="trip_start" required />
+          </dd>
+        </dl>
+        <dl class=" error" id="departure_time_field">
+          <dt><label for="departure_time">Departure Time (required)</label></dt>
+          <dd>
+            <input type="time" id="departure_time" name="departure_time" value="09:00" step="60" required/>
+          </dd>
+        </dl>
+
+        <dl class=" error" id="seats_field">
+          <dt><label for="seats">Available Seats (required, min 1, max 6)</label></dt>
+          <dd>
+		<input type="number" id="seats" name="seats" value=3 min="1" max="6" step=1 />
+          </dd>
+        </dl>
+
+        <dl class=" error" id="recurring">
+          <dt><label for="recurring">Recurring: </label>
+            <input type="checkbox" id="recurring" name="recurring" value="true" onclick="toggleDisplayByCheck(this)" />
+		</dt>
+        </dl>
+
+	<div id=toggleBy-recurring class=toggle>
+          <dl class=" error" id="trip_end_field">
+            <dt><label for="trip_end">End Date</label></dt>
+            <dd>
+            <input type="date" id="trip_end" name="trip_end"  required />
+            </dd>
+          </dl>
+  
+          <dl class=" error" id="monday">
+            <dd>
+              <input type="checkbox" id="day0" name="day0" value="true" />Sunday
+            </dd>
+            <dd>
+              <input type="checkbox" id="day1" name="day1" value="true" />Tueday
+            </dd>
+            <dd>
+              <input type="checkbox" id="day2" name="day2" value="true" />Tueday
+            </dd>
+            <dd>
+              <input type="checkbox" id="day3" name="day3" value="true" />Wednesday
+            </dd>
+            <dd>
+              <input type="checkbox" id="day4" name="day4" value="true" />Thursday
+            </dd>
+            <dd>
+              <input type="checkbox" id="day5" name="day5" value="true" />Friday
+            </dd>
+            <dd>
+              <input type="checkbox" id="day6" name="day6" value="true" />Saturday
+            </dd>
+          </dl>
+	</div>
+	<dl class=" error" id="description_field">
+          <dt><label for="description">Description</label></dt>
+          <dd>
+            <textarea rows="20" cols="50" placeholder="non-smoking, female only, flexible time, flexible pickup,etc"></textarea>
+          </dd>
+        </dl>
+
+
+	
+
+        <br/>
+        <input type="button" value="Save New Offer" onClick="submitForm(this.parentNode, validateTopicForm);" />
+        <br/>
+        <br/>
+      </form>
+      </div>
+  
+    </dd>
+  </dl>
+</div>
+}

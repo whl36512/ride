@@ -29,4 +29,10 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
     Ok(views.html.index())
   }
 
+  def newoffer = Action {
+    Ok(views.html.newoffer())
+  }
+
+
+
 }
