@@ -31,7 +31,6 @@ function toggleDisplayByCheck(checkBox) {
 	false;
 }
 
-
 function geocode(inputString, elem) {
 	var url="https://nominatim.openstreetmap.org/search/"
 //	input = 135%20pilkington%20avenue,%20birmingham
@@ -69,8 +68,12 @@ function callbackGeocode(httpRequest, elem) {
 			console.log("callbackGeocode responseTextJson.length=" +  responseTextJson.length );
 			var readOnlyInput= elem.closest("dl" ).getElementsByClassName("readOnly").item(0) ;
 			console.log("callbackGeocode elem.parentElement" +  elem.closest("dl" ).getElementsByClassName("readOnly").item(0));
+			console.log("responseTextJson[0]=\n", responseTextJson[0]) ;
 	                readOnlyInput.value=responseTextJson[0].display_name;
-			
+			if(responseTextJson[0] != null ) {	
+				console.log("callbackGeocode responseTextJson[0].lat responseTextJson[0].lon=" +responseTextJson[0].lat+" "+responseTextJson[0].lon);
+				flyTo(responseTextJson[0].lat,responseTextJson[0].lon, responseTextJson[0].display_name);
+			}
 
                 }
                 else {
