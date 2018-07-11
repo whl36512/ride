@@ -16,15 +16,42 @@ function createMap(lat, long, zoom)
 }
 
 function flyTo(lat,lon,name){
+	console.log("flyTo");
 	map.flyTo([lat,lon],12);
-	if(marker) {         map.removeLayer(marker); // remove 
-	}
+	if(marker) {         map.removeLayer(marker); }
+	if(markerTo) {         map.removeLayer(markerTo); }
+	if(markerFrom) {         map.removeLayer(markerFrom); }
 	//marker= L.Marker.SVGMarker([lat,lon]).addTo(map).bindPopup(name) svg marker doesnt work
-	marker= L.marker([lat,lon]).addTo(map).bindPopup(name)
+	marker= L.marker([lat,lon]).addTo(map).bindPopup(name) ;
+}
+
+
+function flyToBounds(start_lat, start_lon, start_display_name, end_lat, end_lon, end_display_name)
+{
+	console.log("flyToBounds");
+	fitB= map.fitBounds([
+    		[start_lat, start_lon],
+    		[end_lat, end_lon]
+	]);
+	if(marker) {         map.removeLayer(marker); }
+	if(markerTo) {         map.removeLayer(markerTo); }
+	if(markerFrom) {         map.removeLayer(markerFrom); }
+	map.flyToBounds(fitB);
+	markerFrom= L.marker([start_lat,start_lon]).addTo(map).bindPopup(start_display_name) ;
+	markerTo= L.marker([end_lat,end_lon]).addTo(map).bindPopup(end_display_name) ;
+}
+
+
+function routingUrl(start_lat, start_lon, end_lat, end_lon){
+// curl 'http://router.project-osrm.org/route/v1/driving/13.388860,52.517037;13.397634,52.529407;13.428555,52.523219?overview=false'
+	var url= "http://router.project-osrm.org/route/v1/driving/" ;
+	points=start_lon+","+ start_lat + ";" + end_lon+ ","+ end_lat  ;
+	var query="?overview=false"  ;
+	var urlEncoded=url+points+query ;
+	return urlEncoded;
 }
 
 createMap(41.889489, -87.633229, 12);
-
 
 //var rb='<a href="https://regionbound.com">RegionBound</a> | ';
 //var cc='<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>';

@@ -17,20 +17,34 @@
         <dl class=" error" id="start_loc_field"> 
           <dt><label for="start_loc">From (required) </label></dt>
           <dd>
-              <input type="text" id="start_loc" name="start_loc" value="" size="50" placeholder="From"  required onblur="geocode(this.value, this)"/>
+              <input type="text" id="start_loc" name="start_loc" value="" size="50" placeholder="From"  required onblur="geocode(this)"/>
           </dd>
           <dd>
-              <input type="text" class="readOnly display_name" name="start_display_name" value="" size="50" readOnly=true />
+              <input type="text" id="start_display_name" class="readOnly display_name" name="start_display_name" value="" size="50" readOnly=true />
+          </dd>
+          <dd>
+              <input type="text" id="start_lat" class="readOnly latlon" name="start_lat" value=""  readOnly=true />
+              <input type="text" id="start_lon" class="readOnly latlon" name="start_lon" value=""  readOnly=true />
           </dd>
         </dl>
 
         <dl class=" error" id="end_loc_field">
           <dt><label for="to">To (required) </label></dt>
           <dd>
-            <input type="text" id="end_loc" name="end_loc" value="" size="50" placeholder="To" required onblur="geocode(this.value, this)" />
+              <input type="text" id="end_loc" name="end_loc" value="" size="50" placeholder="From"  required onblur="geocode(this)"/>
           </dd>
           <dd>
-              <input type="text" class="readOnly display_name" name="end_display_name" value="" size="50" readOnly=true />
+              <input type="text" id=end_display_name class="readOnly display_name" name="end_display_name" value="" size="50" readOnly=true />
+          </dd>
+          <dd>
+              <input type="text" id=end_lat class="readOnly latlon" name="end_lat" value=""  readOnly=true />
+              <input type="text" id=end_lon class="readOnly latlon" name="end_lon" value=""  readOnly=true />
+          </dd>
+        </dl>
+        <dl class=" error" id="distance_field">
+          <dt><label for="distance">Distance (miles) </label></dt>
+          <dd>
+              <input type="text" id=distance class="readOnly " name="distance" value=""  readOnly=true /> 
           </dd>
         </dl>
         <dl class=" error" id="trip_start_field">
@@ -49,7 +63,13 @@
         <dl class=" error" id="seats_field">
           <dt><label for="seats">Available Seats (required, min 1, max 6)</label></dt>
           <dd>
-		<input type="number" id="seats" name="seats" value=3 min="1" max="6" step=1 size=1 />
+		<input type="number" id="seats" name="seats" value=3 min="1" max="6" step=1 />
+          </dd>
+        </dl>
+        <dl class=" error" id="price_field">
+          <dt><label for="price">Price (min 0.0, max 0.2) </label></dt>
+          <dd>
+		<input type="number" id="price" name="seats" value=0.1 min="0" max="0.20" step=0.01 /> per mile
           </dd>
         </dl>
 
@@ -102,7 +122,7 @@
 	
 
         <br/>
-        <input type="button" value="Save New Offer" onClick="submitForm(this.parentNode, validateTopicForm);" />
+        <input type="button" value="Publish" onClick="submitForm(this.parentNode, validateTopicForm);" />
         <br/>
         <br/>
       </form>

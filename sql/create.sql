@@ -106,15 +106,20 @@ create table book
 	, driver_score		score
 	, rider_comment		text
 	, driver_comment	text
+	, book_ts		sys_ts
+	, driver_cancel_ts	timestamp with time zone
+	, rider_cancel_ts	timestamp with time zone
+	, finish_ts		timestamp with time zone
 	, constraint pk_book PRIMARY KEY (book_id)
 );
 
 create table money_trnx (
 	money_trnx_id	id
 	, usr_id	id
-	, trnx_type	char(1) -- Deposit, Retrieve,
+	, trnx_type	char(1) -- Deposit, Withdraw
 	, amount	real	
 	, trnx_ts	sys_ts
+	, reference_no	text
 	, cmnt 		text
 	, constraint pk_money_trnx PRIMARY KEY (money_trnx_id)
 );
