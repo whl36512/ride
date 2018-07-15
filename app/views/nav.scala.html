@@ -1,12 +1,22 @@
 @()
+@import java.util.UUID.randomUUID
         <nav>
                 <dl class="topnav" id="tn">
                         <dt><a href="javascript:void(0);" class="navicon" onclick="navicon()" >&#9776;</a> </dt>
+                        <dt id=signinwithlinkedin> <script type="in/Login"></script> </dt>
+                        <dt><a  onclick="ride.signout()" >Sign Out</a></dt>
                         <dt><a href="search">Search</a></dt>
-                        <dt><a href="newoffer">Offer</a></dt>
+                        <dt><a onclick="ride.newoffer(); " >Post a Trip</a></dt>
                         <dt><a href="myoffers">My Offers</a></dt>
                         <dt><a href="mybookings">My Booking</a></dt>
                         <dt><a href="contactus">Contact Us</a></dt>
                         <dt><a href="termsofuse">Terms of Use</a></dt>
                 </dl>
         </nav>
+
+
+@linkedin_url = @{
+	val url="https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=86xvjldqclucd9&redirect_uri=http%3A%2F%2Frideshare.beegrove.com:9000%2Flinkedin%2Fcallback&scope=r_basicprofile&state="
+	val state = randomUUID().toString 
+	url+state
+}

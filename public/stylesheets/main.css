@@ -51,6 +51,9 @@ input#price {
 input#distance {
 	width:6rem
 }
+input#departure_time {
+	width:6rem
+}
 input#seats {
 	width:2rem
 }
@@ -121,3 +124,12 @@ nav {
 		/* color: white; */
 	}
 
+
+img#singinwithlinedin {
+        height: 2rem;
+        border: 0px ;
+}
+dt#singinwithlinedin {
+        height: 2rem;
+        border: 0px ;
+}

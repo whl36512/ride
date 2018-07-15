@@ -13,7 +13,7 @@
       <div class=formentry>
       <br/>
       New Trip Information
-      <form action="/saveOffer" method="POST" >
+      <form action="/saveoffer" method="POST" >
         <dl class=" error" id="start_loc_field"> 
           <dt><label for="start_loc">From (required) </label></dt>
           <dd>
@@ -48,7 +48,7 @@
           </dd>
         </dl>
         <dl class=" error" id="trip_start_field">
-          <dt><label for="trip_start">Date (required)</label></dt>
+          <dt><label for="trip_start">Start Date (required)</label></dt>
           <dd>
           <input type="date" id="trip_start" name="trip_start" required />
           </dd>
@@ -81,7 +81,7 @@
 
 	<div id=toggleBy-recurring class=toggle>
           <dl class=" error" id="trip_end_field">
-            <dt><label for="trip_end">End Date</label></dt>
+            <dt><label for="trip_end">End Date (must be within 92 days after Start Date)</label></dt>
             <dd>
             <input type="date" id="trip_end" name="trip_end"  required />
             </dd>
@@ -92,7 +92,7 @@
               <input type="checkbox" id="day0" name="day0" value="true" />Sunday
             </dd>
             <dd>
-              <input type="checkbox" id="day1" name="day1" value="true" />Tueday
+              <input type="checkbox" id="day1" name="day1" value="true" />Monday
             </dd>
             <dd>
               <input type="checkbox" id="day2" name="day2" value="true" />Tueday
@@ -114,7 +114,7 @@
 	<dl class=" error" id="description_field">
           <dt><label for="description">Description</label></dt>
           <dd>
-            <textarea rows="20" cols="50" placeholder="non-smoking, female only, flexible time, flexible pickup,etc"></textarea>
+            <textarea rows="20" cols="50" name=description placeholder="non-smoking, female only, flexible time, flexible pickup,etc"></textarea>
           </dd>
         </dl>
 
@@ -122,7 +122,7 @@
 	
 
         <br/>
-        <input type="button" value="Publish" onClick="submitForm(this.parentNode, validateTopicForm);" />
+        <input type="button" value="Publish" onClick="submitForm(this.parentNode, validatenewoffer);" disabled />
         <br/>
         <br/>
       </form>
