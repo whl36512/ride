@@ -44,7 +44,7 @@
         <dl class=" error" id="distance_field">
           <dt><label for="distance">Distance (miles) </label></dt>
           <dd>
-              <input type="text" id=distance class="readOnly " name="distance" value=""  readOnly=true /> 
+              <input type="text" id=distance class="readOnly " name="distance" value=""  placeholder="unreachable" readOnly=true /> 
           </dd>
         </dl>
         <dl class=" error" id="trip_start_field">
@@ -67,15 +67,15 @@
           </dd>
         </dl>
         <dl class=" error" id="price_field">
-          <dt><label for="price">Price (min 0.0, max 0.2) </label></dt>
+          <dt><label for="price">Price (required, min 0.0, max 0.2) </label></dt>
           <dd>
-		<input type="number" id="price" name="seats" value=0.1 min="0" max="0.20" step=0.01 /> per mile
+		<input type="number" id="price" name="price" value=0.1 min="0" max="0.20" step=0.01 /> per mile
           </dd>
         </dl>
 
         <dl class=" error" id="recurring">
           <dt><label for="recurring">Recurring: </label>
-            <input type="checkbox" id="recurring" name="recurring" value="true" onclick="toggleDisplayByCheck(this)" />
+            <input type="checkbox" id="recurring" name="recurring" onclick="toggleDisplayByCheck(this)" unchecked />
 		</dt>
         </dl>
 
@@ -83,38 +83,38 @@
           <dl class=" error" id="trip_end_field">
             <dt><label for="trip_end">End Date (must be within 92 days after Start Date)</label></dt>
             <dd>
-            <input type="date" id="trip_end" name="trip_end"  required />
+            <input type="date" id="trip_end" name="trip_end"  />
             </dd>
           </dl>
   
           <dl class=" error" id="monday">
             <dd>
-              <input type="checkbox" id="day0" name="day0" value="true" />Sunday
+              <input type="checkbox" id="day0" name="day0"  unchecked />Sunday
             </dd>
             <dd>
-              <input type="checkbox" id="day1" name="day1" value="true" />Monday
+              <input type="checkbox" id="day1" name="day1"  unchecked />Monday
             </dd>
             <dd>
-              <input type="checkbox" id="day2" name="day2" value="true" />Tueday
+              <input type="checkbox" id="day2" name="day2"  unchecked />Tueday
             </dd>
             <dd>
-              <input type="checkbox" id="day3" name="day3" value="true" />Wednesday
+              <input type="checkbox" id="day3" name="day3"  unchecked />Wednesday
             </dd>
             <dd>
-              <input type="checkbox" id="day4" name="day4" value="true" />Thursday
+              <input type="checkbox" id="day4" name="day4"  unchecked />Thursday
             </dd>
             <dd>
-              <input type="checkbox" id="day5" name="day5" value="true" />Friday
+              <input type="checkbox" id="day5" name="day5"  unchecked />Friday
             </dd>
             <dd>
-              <input type="checkbox" id="day6" name="day6" value="true" />Saturday
+              <input type="checkbox" id="day6" name="day6"  unchecked />Saturday
             </dd>
           </dl>
 	</div>
 	<dl class=" error" id="description_field">
           <dt><label for="description">Description</label></dt>
           <dd>
-            <textarea rows="20" cols="50" name=description placeholder="non-smoking, female only, flexible time, flexible pickup,etc"></textarea>
+            <textarea rows="20" cols="50" name=description placeholder="For example, non-smoking, female only, flexible time, flexible pickup,etc"></textarea>
           </dd>
         </dl>
 
@@ -122,12 +122,12 @@
 	
 
         <br/>
-        <input type="button" value="Publish" onClick="submitForm(this.parentNode, validatenewoffer);" disabled />
+        <input type="submit" value="Publish" onClick="return validatenewoffer(this.parentNode);  " />
         <br/>
         <br/>
       </form>
       </div>
-  
+      
     </dd>
   </dl>
 </div>

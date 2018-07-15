@@ -5,12 +5,13 @@
                         <dt><a href="javascript:void(0);" class="navicon" onclick="navicon()" >&#9776;</a> </dt>
                         <dt id=signinwithlinkedin> <script type="in/Login"></script> </dt>
                         <dt><a  onclick="ride.signout()" >Sign Out</a></dt>
-                        <dt><a href="search">Search</a></dt>
-                        <dt><a onclick="ride.newoffer(); " >Post a Trip</a></dt>
-                        <dt><a href="myoffers">My Offers</a></dt>
-                        <dt><a href="mybookings">My Booking</a></dt>
-                        <dt><a href="contactus">Contact Us</a></dt>
-                        <dt><a href="termsofuse">Terms of Use</a></dt>
+                        <dt><a href="/myprofile" onclick="return ride.checkAuth();" >My Profile</a></dt>
+                        <dt><a href="/search">Search</a></dt>
+                        <dt><a href="/newoffer" onclick="return ride.checkAuth(); " >Post a Trip</a></dt>
+                        <dt><a href="/myoffers"  onclick="return ride.checkAuth(); ">My Offers</a></dt>
+                        <dt><a href="/mybookings" onclick="return ride.checkAuth(); ">My Booking</a></dt>
+                        <dt><a href="/contactus">Contact Us</a></dt>
+                        <dt><a href="/termsofuse">Terms of Use</a></dt>
                 </dl>
         </nav>
 

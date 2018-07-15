@@ -145,7 +145,7 @@ callbackRouting = function (httpRequest, elem)
                 else {
                         console.log('ERROR 201807102058: return status '+ httpRequest.status + "\n" + httpRequest.responseText.replace(/\s+/g,''));
 		        //var distance=document.getElementById("distance");
-                        distance.value=-1 ;
+                        distance.value="" ;
                         console.log("INFO 201807132315 distance.value=" + distance.value );
                 }
 	}
@@ -198,25 +198,19 @@ function sendRequestWithCallback(urlEncoded, method, action, elem, callback)
         //return false;
 //}
 
-function submitForm(oFormElement, validateFunc)
+function submitForm(oFormElement, validateFunc, callbackFunc)
 {
         console.log("INFO 201807132227 enter submitForm");
         console.log("INFO 201807132227 oFormElement.method=" + oFormElement.method) ;
         console.log("INFO 201807132227 oFormElement.action=" + oFormElement.action) ;
-        var formData =getFormData(oFormElement);
-        if(validateFunc != null ) formData =validateFunc(formData)
+	var formData = null;
+
+        if ( validateFunc == null ) formData = getFormData(oFormElement)
+	else if  (validateFunc(oFormElement) ) formData = getFormData(oFormElement)
+
         if (formData==null) return false ;
         var urlEncoded=urlEncodedData(formData);
-        sendRequestWithCallback(urlEncoded, oFormElement.method, oFormElement.action, oFormElement, validatenewoffer )
-
-
-        //var xhr = new XMLHttpRequest();
-
-        //xhr.onreadystatechange = function(){ alertContents(xhr); } ;
-        //xhr.open (oFormElement.method, oFormElement.action, true);
-        //xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-        //xhr.setRequestHeader('Content-Length', urlEncoded.length);
-        //xhr.send (urlEncoded);
+        sendRequestWithCallback(urlEncoded, oFormElement.method, oFormElement.action, oFormElement, callbackFunc )
         return false;
 }
 
@@ -228,10 +222,10 @@ function getFormData(form)
         {
                 var elems = form.getElementsByTagName(tagName) ;
                 console.log("INFO 201807140949 length="+elems.length)
-        for (var i = 0; i < elems.length; i++)
+                for (var i = 0; i < elems.length; i++)
                 {
-                console.log("INFO 201807140950 i="+i+" elem="+elems[i])
-                        elemArray.push (elems[i]);
+                     //console.log("INFO 201807140950 i="+i+" elem="+elems[i])
+                         elemArray.push (elems[i]);
                 }
         }
         pushElement("input") ;
@@ -241,10 +235,19 @@ function getFormData(form)
         for (var i = 0; i < elemArray.length; i++)
         {
                 var name =elemArray[i].getAttribute("name");
-                var value =elemArray[i].value ;
+		var value ="" ;
+		if(elemArray[i].type == "checkbox")
+		{
+			if (elemArray[i].checked) {value= "on"} else {value ="off"}
+		}
+		else value = elemArray[i].value ;
                 formData.set (name, value) ;
         }
-        console.log(formData)
+        //console.log(formData)
+        formData.forEach(function (value,name){
+                console.log("INFO 201807142107 formData name= "+ name + " value= " + value);
+
+        })
         return formData;
 }
 
@@ -269,6 +272,86 @@ function urlEncodedData(formData){
         return urlEncodedData;
 }
 
-function validatenewoffer(formData) {
-	return formData;
+function validatenewoffer(form) {
+	console.log("INFO 201807142230 validatenewoffer enter " ) ; 
+        var formData 	= getFormData(form);
+        distance	= formData.get("distance")
+        trip_start 	= Date.parse(formData.get("trip_start"))/(24.0*60*60*1000) // days from epoch
+        departure_time  = formData.get("departure_time ")
+        seats   	= formData.get("seats")
+        price   	= formData.get("price")
+        recurring    	= formData.get("recurring")
+        trip_end     	= Date.parse(formData.get("trip_end"))/(24.0*60*60*1000) // days from epoch
+        day0      	= formData.get("day0")
+        day1      	= formData.get("day1")
+        day2      	= formData.get("day2")
+        day3      	= formData.get("day3")
+        day4      	= formData.get("day4")
+        day5      	= formData.get("day5")
+        day6      	= formData.get("day6")
+
+	nowtime		= Math.floor(Date.now()/(24.0*60*60*1000)) // days from epoch
+
+	console.log("INFO 201807142019 trip_start nowtime = " + trip_start + " " +  nowtime ) ; 
+	console.log("INFO 201807142019 trip_start - nowtime = " + (trip_start - nowtime ) ) ; 
+	if(distance =="" ) {
+	  console.log("ERROR 201807142049 distance unset") ; 
+	  formData = null;
+	}
+	else if( isNaN(trip_start)  ) {
+	  console.log("ERROR 201807142049 trip_start unset") ; 
+	  formData = null;
+	}
+        else if(trip_start - nowtime < -1) { 
+	  console.log("ERROR 201807142019 trip_start -  nowtime =" + (trip_start - nowtime) +" < -1" ) ; 
+	  formData = null;
+	}
+	else if(departure_time =="" ) 
+	{
+	  console.log("ERROR 201807142049 departure_time unset") ; 
+	  formData = null;
+	}
+	else if(seats =="" )
+	{
+	  console.log("ERROR 201807142049 seats unset") ; 
+	  formData = null;
+	}
+	else if ( seats <0 || seats > 6 ) 
+	{
+	  console.log("ERROR 201807142049 seats out of range") ; 
+	  formData = null;
+	}
+	else if(price =="" )
+	{
+	  console.log("ERROR 201807142049 price unset") ; 
+	  formData = null;
+	}
+	else if ( price <0 || price > 0.2 ) 
+	{
+	  console.log("ERROR 201807142049 price out of range") ; 
+	  formData = null;
+	}
+        else if (recurring =="on" && isNaN(trip_end) ) 
+	{
+	  console.log("ERROR 201807142049 recurring but trip_end unset") ; 
+	  formData = null;
+	}
+        else if (recurring =="on" && (trip_end < trip_start)   ) 
+        {
+	  console.log("ERROR 201807142020  trip_end < trip_start " );
+	  formData = null;
+ 	}
+        else if (recurring =="on" && (trip_end - trip_start) > 92 ) 
+        {
+	  console.log("ERROR 201807142301  trip_end - trip_start = " + (trip_end - trip_start) + " > 92" );
+	  formData = null;
+ 	}
+        else if (recurring =="on" && day0 != "on" && day1 != "on" && day2 != "on" && day3 != "on" && day4 != "on" && day5 != "on" && day6 != "on" ) {
+	  console.log("ERROR 201807142027  recurring but no day of week is selected" );
+	  formData = null;
+        }
+      
+	if (formData == null) return false
+	else return true
+	//return formData;
 }
