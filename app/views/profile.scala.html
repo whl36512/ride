@@ -1,0 +1,44 @@
+
+@import com.beegrove.ride.User
+
+@(implicit user: User)
+
+@main("Rideshare made easy") {
+
+<div  id=profile >
+  <dl>
+    <dd>
+      <div class=formentry>
+      <br/>
+      Use Profile
+      <form action="/saveoffer" method="POST" >
+        <dl class=" error" id="lastName_field"> 
+          <dt><label for="lastName">Last Name</label></dt>
+          <dd>
+              <input type="text" id="lastName" class="readOnly " name="lastName" value="@user.lastName" size="50" readOnly=true />
+          </dd>
+        </dl>
+
+        <dl class=" error" id="firstName_field">
+          <dt><label for="to">First Name</label></dt>
+          <dd>
+              <input type="text" id="firstName" class="readOnly " name="firstName" value="@user.firstName" size="50" readOnly=true />
+          </dd>
+        </dl>
+        <dl class=" error" id="email_field">
+          <dt><label for="email">Email (required) </label></dt>
+          <dd>
+              <input type="email" id=email name=email value="@user.email"  placeholder="Email Address" required /> 
+          </dd>
+        </dl>
+        <br/>
+        <input type="submit" value="Save" onClick="return true; " />
+        <br/>
+        <br/>
+      </form>
+      </div>
+      
+    </dd>
+  </dl>
+</div>
+}
