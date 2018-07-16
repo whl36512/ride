@@ -18,3 +18,7 @@ libraryDependencies += ws
 
 // Adds additional packages into conf/routes
 // play.sbt.routes.RoutesKeys.routesImport += "com.example.binders._"
+
+libraryDependencies += "com.google.api-client" % "google-api-client" % "1.23.0"
+libraryDependencies += "com.google.oauth-client" % "google-oauth-client-jetty" % "1.23.0"
+libraryDependencies += "com.google.apis" % "google-api-services-gmail" % "v1-rev83-1.23.0"

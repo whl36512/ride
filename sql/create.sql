@@ -3,7 +3,7 @@ create database ride;
 drop user if exists ride;
 create user ride with password 'ride';
 -- alter database ride owner to ride;
--- GRANT ALL PRIVILEGES ON DATABASE ride to ride;
+GRANT ALL PRIVILEGES ON DATABASE ride to ride;
 \c ride
 grant all on all tables in schema public to ride;
 CREATE EXTENSION pgcrypto;
@@ -47,33 +47,7 @@ create table usr
 	, constraint pk_usr PRIMARY KEY (usr_id)
 ) ;
 
-create table trip
-(
-	trip_id 		id
-	, driver_id		id
-	, c_ts 			sys_ts
-	, m_ts 			sys_ts
-	, trip_start		date	not null
-	, trip_end		date	-- last date if recurring, null otherwise
-	, departure_time	time	not null
-	, start_loc 		location
-	, end_loc 		location
-	, distance		real	not null default 0
-	, price			real	not null default 0.1 -- price per mile
-	, recuring		boolean not null default false
-	, status		char(1) not null default  'P' -- Editing, Posted, Removed, Expired
-	, description		text
-	, seats			integer	not null default 3
-	, day0			boolean	not null default false		-- sunday
-	, day1			boolean	not null default false
-	, day2			boolean	not null default false
-	, day3			boolean not null default false
-	, day4			boolean not null default false
-	, day5			boolean not null default false
-	, day6			boolean not null default false
-	, constraint pk_trip PRIMARY KEY (trip_id)
-);
--- select (start_loc).display_name, (start_loc).city from trip;
+drop table trip;
 
 create table book_status(
 	book_status_cd 	char(1) not null
@@ -124,13 +98,13 @@ create table money_trnx (
 	, constraint pk_money_trnx PRIMARY KEY (money_trnx_id)
 );
 
-alter table trip add FOREIGN KEY (driver_id) REFERENCES usr (usr_id);
+--alter table trip add FOREIGN KEY (driver_id) REFERENCES usr (usr_id);
 alter table book add FOREIGN KEY (rider_id) REFERENCES usr (usr_id);
-alter table book add FOREIGN KEY (book_id) REFERENCES trip (trip_id);
+--alter table book add FOREIGN KEY (book_id) REFERENCES trip (trip_id);
 alter table money_trnx add FOREIGN KEY (usr_id) REFERENCES usr (usr_id);
 alter table book add FOREIGN KEY (book_status_cd) REFERENCES book_status (book_status_cd);
 
 grant all on public.usr to ride;
-grant all on public.trip to ride;
+--grant all on public.trip to ride;
 grant all on public.book to ride;
 grant all on public.money_trnx to ride;

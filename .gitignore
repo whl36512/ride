@@ -5,3 +5,5 @@ target
 .git
 .cache-main
 .cache-tests
+conf/secrte
+*.swp
