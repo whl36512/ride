@@ -31,7 +31,39 @@ function toggleDisplayByCheck(checkBox) {
 	false;
 }
 
+function clearGeocode(elem) {
+         document.getElementById("distance").value="" ;
+         var start_display_name=document.getElementById("start_display_name");
+         var start_lat=document.getElementById("start_lat");
+         var start_lon=document.getElementById("start_lon");
+         var end_display_name=document.getElementById("end_display_name");
+         var end_lat=document.getElementById("end_lat");
+         var end_lon=document.getElementById("end_lon");
+
+
+         if(elem.id=="start_loc"){
+                                display_name=start_display_name ;
+                                lat=start_lat ;
+                                lon=start_lon ;
+         }
+         if(elem.id=="end_loc"){
+                                display_name=end_display_name ;
+                                lat=end_lat ;
+                                lon=end_lon ;
+         }
+	display_name.value=""
+	lat.value=""
+	lon.value=""
+	if(elem.value.trim() != "" ) display_name.placeholder="location not found" ;
+	else display_name.placeholder=""
+	return true;
+}
+
 function geocode(elem) {
+	if(elem.value.trim() == "") {
+		clearGeocode(elem) 
+		return false
+	}
 	var url="https://nominatim.openstreetmap.org/search/"
 //	input = 135%20pilkington%20avenue,%20birmingham
 	query="?format=json&polygon=0&addressdetails=0" ;
@@ -115,10 +147,7 @@ callbackGeocode = function(httpRequest, elem) {
 			}
 			else
 			{
-	                	display_name.value="" ;
-	                	display_name.placeholder="location not found" ;
-	                	lat.value="" ;
-	                	lon.value="" ;
+				clearGeocode(elem)
 			}
 		
                 }
