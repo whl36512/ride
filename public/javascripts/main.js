@@ -351,7 +351,15 @@ function validatenewoffer(form) {
 	  formData = null;
         }
       
-	if (formData == null) return false
-	else return true
+	if (formData == null) 
+        {
+	  document.getElementById("submit").disabled=true;
+	  return false
+ 	}
+	else 
+	{
+	  document.getElementById("submit").disabled=false;
+	  return true
+	}
 	//return formData;
 }

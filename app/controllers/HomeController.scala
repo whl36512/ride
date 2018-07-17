@@ -40,10 +40,13 @@ class MyExecutionContextImpl @Inject()(system: ActorSystem)
  * application's home page.
  */
 @Singleton
-//class HomeController @Inject()(ec: MyExecutionContext, ws: WSClient, cache: AsyncCacheApi, cc: ControllerComponents) extends AbstractController(cc) {
-class HomeController @Inject()(ec: ExecutionContext, ws: WSClient, cache: AsyncCacheApi, cc: ControllerComponents) extends AbstractController(cc) {
-
-
+//class HomeController @Inject()(ec: MyExecutionContext, ws: WSClient, cache: AsyncCacheApi, cc: ControllerComponents) extends AbstractController(cc) 
+class HomeController @Inject()(	ec: ExecutionContext
+				, ws: WSClient
+				, cache: AsyncCacheApi
+				, cc: ControllerComponents) 
+  extends AbstractController(cc) 
+{
   /**
    * Create an Action to render an HTML page.
    *
@@ -63,27 +66,26 @@ class HomeController @Inject()(ec: ExecutionContext, ws: WSClient, cache: AsyncC
   def index() = Action { implicit request: Request[AnyContent] =>
     val rideRequest = RideRequest (request) ;
     rideRequest.inspect ;
-    checkSecurityAndThen( Ok(views.html.index())) ;
+    Ok(views.html.index()) ;
   }
 
 
   def newoffer = Action {  implicit request: Request[AnyContent] =>
     val rideRequest = RideRequest (request) ;
     rideRequest.inspect ;
-    
-    Ok(views.html.newoffer()) ;
+    checkSecurityAndThen(Ok(views.html.newoffer())) ;
   }
 
   def saveoffer = Action.async { implicit request: Request[AnyContent] =>  // use Asunc to do Future[WSResponse]
     val rideRequest = RideRequest (request) ;
     rideRequest.inspect ;
     Future {
-      Ok("saveoffer")
+      checkSecurityAndThen(Ok("saveoffer"))
     }(ec)
   }
 
 
-  def linkedinCallback = Action.async { reques =>  // use Asunc to do Future[WSResponse]
+  def linkedinCallback = Action.async { implicit reques: Request[AnyContent] =>  // use Asunc to do Future[WSResponse]
     //  /linkedin/callback?code=AQTDiXHOmjt-gINSGGqmhBScRsnJRkkd-nacS2x6Tc_uOP_CnhQFe384ZDc6Oh8Ob3mPUzud7MQvHgXYenc4ouGEHniS97pnNZUnFJXkW4FYsFDCwFSz7U4n8soSIw45Hpd6FhGYE0tRfj3V8NkKoEiLa9Nd4QWxyOPHQbJr&state=545aabc3-273d-4ea1-b23e-de78fddd05a1
     Logger.info("INFO 20170118221234: reques=" + reques)
     val rideRequest = RideRequest (reques) ;
@@ -115,43 +117,42 @@ class HomeController @Inject()(ec: ExecutionContext, ws: WSClient, cache: AsyncC
     }
     else {
       Future {
-     	Ok(views.html.linkedin_error(error_description))
+     	Ok(error_description)
       }(ec)
     }
   }
 
   def checkSecurityAndThen( result: Result)( implicit request :  Request[AnyContent]) : Result = {
     val rideRequest		= RideRequest(request);
-    val isAuthed		= rideRequest.isAuthed ;
-    val is3PartyAuthed		= rideRequest.is3PartyAuthed
-    val isProfileComplete	= rideRequest.isProfileComplete 
 
-    if ( isAuthed && is3PartyAuthed && isProfileComplete) result
-    else if ( isAuthed && is3PartyAuthed && !isProfileComplete) {
-      val user = User.userFrom3PartyAuth(rideRequest) ;
-      if (user.isUserProfileComplete ) result.withSession(request.session + ("isProfileComplete" -> "y"))
-      else Ok(views.html.profile(user)).flashing( "flashMsg" -> "Please complete your profile" )
-    }
-    else if ( isAuthed && ! is3PartyAuthed) { // signed out from linkedid at client side
-      Ok(views.html.index()).withNewSession.flashing( "flashMsg" -> "You've been signed out")
-    }
-    else if ( ! isAuthed && is3PartyAuthed ) { // signed in into linkedin at client side
-      val user = User.userFrom3PartyAuth(rideRequest) ;
-      if (user.isUserProfileComplete ) {  // User Profile at Database is complete
+    rideRequest.authStatus match {
+      case RideRequest.NOT_SIGNED_IN 		=> 
+        Redirect("/").withNewSession
+		.flashing( "flashMsgType" -> "error", "flashMsg" -> "Requested Action requires sign in. Please sign in")
+      case RideRequest.CLIENT_SIDE_SIGNOUT		=>
+        Redirect("/").withNewSession.flashing( "flashMsg" -> "You are signed out", "flashMsgType" -> "warn")
+      case RideRequest.SIGNED_IN_COMPLETE_PROFILE	=>
         result	
-		.withNewSession
-		.withSession(request.session + "profile.id" -> user.id)
-		.withSession(request.session + ("isProfileComplete" -> "y"))
-		.flashing( "flashMsg" -> ("Welcome" + user.firstName) )
-      }
-      else // User Profile at Database is not complete
-	Ok(views.html.profile(user))
-		.withNewSession
-		.withSession(request.session + "profile.id" -> user.id)
-		.flashing( "flashMsg" -> "Please complete your profile" )
+      case RideRequest.CASE_SHOULD_NEVER_HAPPEN		=> 
+        Redirect("/").withNewSession
+      case _						=>
+      //RideRequest.CLIENT_SIDE_SIGNIN		
+      //RideRequest.SIGNED_IN_INCOMPLETE_PROFILE
+      //RideRequest.CLIENT_SIDE_SIGNIN_AS_DIFF_ID
+        val user :User= User.userFrom3PartyAuth(rideRequest) ;
+        if (user.isUserProfileComplete ) {  // User Profile at Database is complete
+          result
+            .withSession(request.session + ("isProfileComplete" -> RideRequest.ProfileComplete) + ("profile.id" -> user.id))
+            .flashing( "flashMsg" -> ("Welcome" + user.firstName) , "flashMsgType" -> "info")
+        }
+        else // User Profile at Database is not complete
+	{
+          Ok(views.html.profile(user))
+          //Redirect(routes.HomeController.profile(user))
+            .withSession(request.session + ("profile.id" -> user.id) + ("isProfileComplete" -> RideRequest.ProfileInComplete))
+              .flashing( "flashMsg" -> "Please complete your profile" , "flashMsgType" -> "warn")
+        }
     }
-    else // nots signed in
-      result.withNewSession
   }
 }
 

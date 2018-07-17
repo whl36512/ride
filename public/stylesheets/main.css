@@ -133,3 +133,12 @@ dt#singinwithlinedin {
         height: 2rem;
         border: 0px ;
 }
+div#flashMsg.error {
+		background-color:red;
+}
+div#flashMsg.warn {
+		background-color:yellow;
+}
+div#flashMsg.info {
+		background-color:green;
+}

@@ -4,7 +4,9 @@
  * two arguments, a `String` for the title of the page and an `Html`
  * object to insert into the body of the page.
  *@
-@(title: String)(content: Html)
+@(title: String)(content: Html)( implicit flash: Flash)
+
+
 
 <!DOCTYPE html>
 <html lang="en-US" xmlns="http://www.w3.org/1999/xhtml">
@@ -35,6 +37,8 @@
         <body>
 		@nav()
                 <div id="main"> 
+
+		  <div id=flashMsg class=@{flash.get("flashMsgType").getOrElse("")} > @{flash.get("flashMsg").getOrElse("")} </div>
         		@* And here's where we render the `Html` object containing
          		* the page content. *@
         		@content

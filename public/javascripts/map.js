@@ -17,7 +17,8 @@ function createMap(lat, long, zoom)
 
 function flyTo(lat,lon,name){
 	console.log("flyTo");
-	map.flyTo([lat,lon],12);
+	map.setView([lat,lon],12);
+	//map.flyTo([lat,lon],12);
 	if(marker) {         map.removeLayer(marker); }
 	if(markerTo) {         map.removeLayer(markerTo); }
 	if(markerFrom) {         map.removeLayer(markerFrom); }

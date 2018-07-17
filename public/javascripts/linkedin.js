@@ -72,6 +72,7 @@ var ride = {
         setCookie("profile.headline", "", -1 )
         //setCookie("PLAY_SESSION", "", -1 )   // cannot remove PLAY_SESSION because it has "same site" attribute
         console.log("INFO 201807131556 Signed Out !") ;
+	window.location.reload(true)              // use true to reload page from server
     }
 }
 

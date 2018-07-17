@@ -1,6 +1,6 @@
 
 
-@()
+@()(implicit flash: Flash )
 
 @{ //(implicit request: RequestHeader, m: Messages) 
 }
@@ -13,7 +13,7 @@
       <div class=formentry>
       <br/>
       New Trip Information
-      <form action="/saveoffer" method="POST" >
+      <form action="/saveoffer" method="POST"  onfocusout="validatenewoffer(this)" >
         <dl class=" error" id="start_loc_field"> 
           <dt><label for="start_loc">From (required) </label></dt>
           <dd>
@@ -122,7 +122,7 @@
 	
 
         <br/>
-        <input type="submit" value="Publish" onClick="return validatenewoffer(this.parentNode);  " />
+        <input type="submit" id=submit value="Publish" onClick="return validatenewoffer(this.parentNode);  " disabled />
         <br/>
         <br/>
       </form>

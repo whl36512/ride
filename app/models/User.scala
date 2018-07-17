@@ -1,10 +1,15 @@
 package com.beegrove.ride
+import play.api.Logger
+
 
 import play.api.mvc._
 
 case class User(id: String, lastName: String = "" , firstName: String = "" , headline: String = "", email:String ="" ) {
   def isUserProfileComplete : Boolean = {
-	false;
+    val isUserProfileComplete = true
+    Logger.debug (s"201807161447  isUserProfileComplete=$isUserProfileComplete")
+
+    isUserProfileComplete;
   }
   
 }
@@ -17,6 +22,7 @@ object User{
     val headline= request.getCookie("profile.headline")
 
     val user = User (id, lastName, firstName, headline);
+    Logger.debug(s"201807161501 user=$user")
     user;
   }
 
