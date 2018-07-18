@@ -4,7 +4,7 @@
  * two arguments, a `String` for the title of the page and an `Html`
  * object to insert into the body of the page.
  *@
-@(title: String)(content: Html)( implicit flash: Flash)
+@(title: String)(content: Html)( implicit flash: Flash, request: Request[AnyContent] )
 
 
 
@@ -35,7 +35,7 @@
         </head>
 
         <body>
-		@nav()
+		@nav2()
                 <div id="main"> 
 
 		  <div id=flashMsg class=@{flash.get("flashMsgType").getOrElse("")} > @{flash.get("flashMsg").getOrElse("")} </div>

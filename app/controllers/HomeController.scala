@@ -70,6 +70,13 @@ class HomeController @Inject()(	ec: ExecutionContext
   }
 
 
+  def profile = Action {  implicit request: Request[AnyContent] =>
+    val rideRequest = RideRequest (request) ;
+    rideRequest.inspect ;
+    val user :User= User.userFrom3PartyAuth(rideRequest) ;
+    checkSecurityAndThen(Ok(views.html.profile(user))) ;
+  }
+
   def newoffer = Action {  implicit request: Request[AnyContent] =>
     val rideRequest = RideRequest (request) ;
     rideRequest.inspect ;
@@ -81,6 +88,14 @@ class HomeController @Inject()(	ec: ExecutionContext
     rideRequest.inspect ;
     Future {
       checkSecurityAndThen(Ok("saveoffer"))
+    }(ec)
+  }
+
+  def saveprofile = Action.async { implicit request: Request[AnyContent] =>  // use Asunc to do Future[WSResponse]
+    val rideRequest = RideRequest (request) ;
+    rideRequest.inspect ;
+    Future {
+      checkSecurityAndThen(Ok("saveprofile"))
     }(ec)
   }
 

@@ -14,3 +14,6 @@ GET     /assets/*file               controllers.Assets.versioned(path="/public",
 GET     /linkedin/callback          controllers.HomeController.linkedinCallback
 GET     /newoffer          controllers.HomeController.newoffer
 POST    /saveoffer          controllers.HomeController.saveoffer
+GET    /profile          controllers.HomeController.profile
+POST    /saveprofile          controllers.HomeController.saveprofile
+GET    /search          controllers.HomeController.search

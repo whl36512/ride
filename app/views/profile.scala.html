@@ -1,6 +1,6 @@
 @import com.beegrove.ride.User
 
-@(user: User)( implicit flash: Flash)
+@(user: User)( implicit flash: Flash, request: Request[AnyContent] )
 
 @main("Rideshare made easy") {
 
@@ -9,29 +9,29 @@
     <dd>
       <div class=formentry>
       <br/>
-      Use Profile
-      <form action="/saveoffer" method="POST" >
+      <div class="center f15">User Profile</div>
+      <form action="/saveprofile" method="POST" >
         <dl class=" error" id="lastName_field"> 
           <dt><label for="lastName">Last Name</label></dt>
           <dd>
-              <input type="text" id="lastName" class="readOnly " name="lastName" value="@user.lastName" size="50" readOnly=true />
+              <input type="text" id="lastName" class="readOnly " name="lastName" value="@user.lastName" size="30" readOnly=true />
           </dd>
         </dl>
 
         <dl class=" error" id="firstName_field">
           <dt><label for="to">First Name</label></dt>
           <dd>
-              <input type="text" id="firstName" class="readOnly " name="firstName" value="@user.firstName" size="50" readOnly=true />
+              <input type="text" id="firstName" class="readOnly " name="firstName" value="@user.firstName" size="30" readOnly=true />
           </dd>
         </dl>
         <dl class=" error" id="email_field">
           <dt><label for="email">Email (required) </label></dt>
           <dd>
-              <input type="email" id=email name=email value="@user.email"  placeholder="Email Address" required /> 
+              <input type="email" id=email name=email value="@user.email"  placeholder="Email Address" required pattern="^[a-zA-Z0-9\.\-]{1,50}@@([a-zA-Z0-9\-]+\.){1,4}[a-zA-z]{1,7}$" /> 
           </dd>
         </dl>
         <br/>
-        <input type="submit" value="Save" onClick="return true; " />
+        <input type="submit" value="Save" />
         <br/>
         <br/>
       </form>

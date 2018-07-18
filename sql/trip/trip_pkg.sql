@@ -13,7 +13,7 @@ CREATE TABLE trip
 	, distance		real	not null default 0
 	, price			real	not null default 0.1 -- price per mile
 	, recur_ind		boolean not null default false
-	, status_code		char(1) not null default  'P' -- Editing, Posted, Removed, Expired
+	, status_code		char(1) not null default  'P' -- Posted, 'D' -- Removed, 'E' -- Expired
 	, desc_txt		text
 	, seats			integer	not null default 3
 	, day0_ind		boolean	not null default false		-- sunday

@@ -1,14 +1,14 @@
 #map {
-        height: 99%;
-        width: 99%;
+        height: 100%;
+        width: 100%;
         border: 1px solid #AAA;
-        z-index: +0;
+        z-index: 0;
         position: absolute;
         left: 0px;
         top: 0px;
 }
 #main {
-        z-index: +1;
+        z-index: +100;
         position: absolute;
         left: 0px;
         top: 0px;
@@ -23,6 +23,7 @@ html, body {
         color: black;
         font-size: 1rem;
 }
+
 
 dl, dt, dd {
         margin: 0rem;
@@ -67,78 +68,35 @@ div.toggle  {
         display: none;
 }
 
-nav {
-        padding: 0px 15px 0px 30px;
-}
+#topnav > .toggled { display: none; }
+#topnav:focus-within > .toggled { display: block; }
 
-
-
-	.topnav {	 
+div.topnav {	 
 		position: fixed;
 		width: auto;
-		padding: 0px;
-		top: 0px;
-		right: 0px;
+		top: 1rem;
+		right: 1rem;
 		overflow: visible;
 		z-index:500;
-		
-	}
-	
-	.topnav a {
-		display: none;	
-		float: right;
-		top: 0px;
-		right: 0px;
+        	border: 1px solid #AAA;
 		font-size: 2rem;
-	}
- 
-	.topnav a.navicon {
-		display: block;           		
-		top: 0px;
-		right: 0px;
-		background-color: #eee;	
-		/* background-color:#20124d; */
-		/* color: white; */
-		font-size: 3rem;
-    }
-  
- /* responsive */
-	.topnav.responsive a {
-		display: block;	
-		float: none;
-		clear: both;
-		top: 0px;
-		right: 0px;
-		background-color: #eee;	
-	}
-  
-	.topnav.responsive a.navicon {
+		background-color: #ddd;	
+}
+div#navicon{	 
 		float: right;
-		top: 0px;
-		right: 0px;		
-		background-color: #eee;	
-	}  
-	
-	 .topnav.responsive a:hover {
-		background-color:#ddd;
-		/* color: white; */
-	}
-
-
-img#singinwithlinedin {
-        height: 2rem;
-        border: 0px ;
+		clear: both;
+		font-size: 3rem;
+		padding: 0rem;
+		margin: 0rem;
 }
-dt#singinwithlinedin {
-        height: 2rem;
-        border: 0px ;
+div.topnav  dt {	 
+		padding: 0.5rem;
+		float: left;
+		clear: both;
 }
-div#flashMsg.error {
-		background-color:red;
+div.center {
+	text-align:center
 }
-div#flashMsg.warn {
-		background-color:yellow;
-}
-div#flashMsg.info {
-		background-color:green;
+div.f15 {
+	                font-size: 1.5rem;
 }
