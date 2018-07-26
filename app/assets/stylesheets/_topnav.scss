@@ -1,0 +1,28 @@
+#topnav > .toggled { display: none; }
+#topnav:focus-within > .toggled { display: block; }
+
+div.topnav {	 
+		position: fixed;
+		width: auto;
+		top: 1rem;
+		right: 1rem;
+		overflow: visible;
+		z-index:500;
+        	border: 1px solid #AAA;
+		font-size: 2rem;
+		background-color: #ddd;	
+}
+
+div#navicon{	 
+		float: right;
+		clear: both;
+		font-size: 3rem;
+		padding: 0rem;
+		margin: 0rem;
+}
+
+div.topnav  dt {	 
+		padding: 0.5rem;
+		float: left;
+		clear: both;
+}

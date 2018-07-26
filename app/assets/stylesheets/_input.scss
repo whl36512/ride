@@ -1,0 +1,39 @@
+input[type=text]{
+	        width:25rem ;
+}
+teaxtarea[readonly] {
+// style sheet has no effect for chrome. Have to put it inline in html file
+        border: none;
+	background-color:rgba(0,0,0,0);
+	outline: none;
+	border-color: Transparent;
+}
+input[readonly]{
+        border: none;
+	background-color:rgba(0,0,0,0);
+}
+
+textarea {
+	width:25rem ;
+	height:10rem ;
+}	
+textarea#start_display_name, textarea#end_display_name {
+	width:25rem ;
+	height:2rem ;
+}	
+input#price {
+	width:3rem
+}
+input#distance {
+	width:15rem
+}
+input#departure_time {
+	width:10rem
+}
+input#seats {
+	width:2rem
+}
+
+input.latlon { 
+	width:10rem
+}
