@@ -8,11 +8,9 @@
 @main("Welcome to Play") {
 
 <div  id=newoffer >
-  <dl>
-    <dd>
       <div class=formentry>
       <br/>
-      New Trip Information
+      <div class="center f18">New Trip Information</div>
       <form action="/saveoffer" method="POST"  onfocusout="validatenewoffer(this)" >
         <dl class=" error" id="start_loc_field"> 
           <dt><label for="start_loc">From (required) </label></dt>
@@ -20,11 +18,11 @@
               <input type="text" id="start_loc" name="start_loc" value="" size="50" placeholder="From"  required onblur="geocode(this)"/>
           </dd>
           <dd>
-              <input type="text" id="start_display_name" class="readOnly display_name" name="start_display_name" value="" size="50" readOnly=true />
-          </dd>
-          <dd>
               <input type="text" id="start_lat" class="readOnly latlon" name="start_lat" value=""  readOnly=true />
               <input type="text" id="start_lon" class="readOnly latlon" name="start_lon" value=""  readOnly=true />
+          </dd>
+          <dd>
+              <textarea id="start_display_name" class="readOnly display_name" name="start_display_name" value="" readOnly=true style="background-color:rgba(0,0,0,0); border:none" ></textarea>
           </dd>
         </dl>
 
@@ -34,17 +32,17 @@
               <input type="text" id="end_loc" name="end_loc" value="" size="50" placeholder="To"  required onblur="geocode(this)"/>
           </dd>
           <dd>
-              <input type="text" id=end_display_name class="readOnly display_name" name="end_display_name" value="" size="50" readOnly=true />
-          </dd>
-          <dd>
               <input type="text" id=end_lat class="readOnly latlon" name="end_lat" value=""  readOnly=true />
               <input type="text" id=end_lon class="readOnly latlon" name="end_lon" value=""  readOnly=true />
+          </dd>
+          <dd>
+              <textarea id=end_display_name class="readOnly display_name" name="end_display_name" value=""  readOnly=true style="background-color:rgba(0,0,0,0); border:none;"></textarea
           </dd>
         </dl>
         <dl class=" error" id="distance_field">
           <dt><label for="distance">Distance (miles) </label></dt>
           <dd>
-              <input type="text" id=distance class="readOnly " name="distance" value=""  placeholder="unreachable" readOnly=true /> 
+              <input type="text" id=distance class="readOnly " name="distance" value=""  placeholder="no route found" readOnly=true /> 
           </dd>
         </dl>
         <dl class=" error" id="trip_start_field">
@@ -114,7 +112,7 @@
 	<dl class=" error" id="description_field">
           <dt><label for="description">Description</label></dt>
           <dd>
-            <textarea rows="20" cols="50" name=description placeholder="For example, non-smoking, female only, flexible time, flexible pickup,etc"></textarea>
+            <textarea name=description placeholder="For example, non-smoking, female only, flexible time, flexible pickup,etc"></textarea>
           </dd>
         </dl>
 
@@ -128,7 +126,5 @@
       </form>
       </div>
       
-    </dd>
-  </dl>
 </div>
 }

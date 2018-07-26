@@ -1,6 +1,6 @@
-@import com.beegrove.ride.User
+@import models.db.tables.UsrTable
 
-@(user: User)( implicit flash: Flash, request: Request[AnyContent] )
+@(usr: UsrTable , saved: Boolean = false)( implicit flash: Flash, request: Request[AnyContent] )
 
 @main("Rideshare made easy") {
 
@@ -9,29 +9,30 @@
     <dd>
       <div class=formentry>
       <br/>
-      <div class="center f15">User Profile</div>
-      <form action="/saveprofile" method="POST" >
-        <dl class=" error" id="lastName_field"> 
-          <dt><label for="lastName">Last Name</label></dt>
+      <div class="center f15"  noshow=@{ saved} >Please Complete User Profile</div>
+      <div class="center f15"  noshow=@{!saved} >User Profile Saved</div>
+      <form action="@{if (saved) "/" else "/saveprofile"}" method="POST" >
+        <dl class=" error" id="last_name_field"> 
+          <dt><label for="last_name">Last Name</label></dt>
           <dd>
-              <input type="text" id="lastName" class="readOnly " name="lastName" value="@user.lastName" size="30" readOnly=true />
+              <input type="text" id="last_name" name="last_name" value="@usr.last_name" size="30" readonly />
           </dd>
         </dl>
 
-        <dl class=" error" id="firstName_field">
+        <dl class=" error" id="first_name_field">
           <dt><label for="to">First Name</label></dt>
           <dd>
-              <input type="text" id="firstName" class="readOnly " name="firstName" value="@user.firstName" size="30" readOnly=true />
+              <input type="text" id="first_name" name="first_name" value="@usr.first_name" size="30" readonly />
           </dd>
         </dl>
         <dl class=" error" id="email_field">
           <dt><label for="email">Email (required) </label></dt>
           <dd>
-              <input type="email" id=email name=email value="@user.email"  placeholder="Email Address" required pattern="^[a-zA-Z0-9\.\-]{1,50}@@([a-zA-Z0-9\-]+\.){1,4}[a-zA-z]{1,7}$" /> 
+              <input type="email" id=email name=email value="@usr.email"  placeholder="Email Address" required pattern="^[a-zA-Z0-9\.\-]{1,50}@@([a-zA-Z0-9\-]+\.){1,4}[a-zA-z]{1,7}$" @{if (saved) "readonly" else ""} /> 
           </dd>
         </dl>
         <br/>
-        <input type="submit" value="Save" />
+        <input type="submit" value="@{if (saved) "Ok" else "Save"}" />
         <br/>
         <br/>
       </form>
@@ -41,3 +42,5 @@
   </dl>
 </div>
 }
+
+

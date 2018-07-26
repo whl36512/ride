@@ -23,6 +23,8 @@ import java.io.FileInputStream;
 import java.security.GeneralSecurityException;
 import java.util.Collections;
 import java.util.List;
+import play.Play; 
+
 
 /*
 public class GmailQuickstart {
@@ -102,12 +104,14 @@ object GoogleGmail {
 
   def auth : com.google.api.services.gmail.Gmail = {
     // Build service account credential.
+    val file=Play.application().getFile(CREDENTIALS_FOLDER);
 
-    val credential : GoogleCredential = com.google.api.client.googleapis.auth.oauth2.GoogleCredential.fromStream(new FileInputStream(CREDENTIALS_FOLDER))
+    val credential : GoogleCredential = com.google.api.client.googleapis.auth.oauth2.GoogleCredential.fromStream(new FileInputStream(file))
         .createScoped(Collections.singleton(GmailScopes.MAIL_GOOGLE_COM));
 
     val service: Gmail = new Gmail.Builder(HTTP_TRANSPORT, JSON_FACTORY, credential)
                 .setApplicationName(APPLICATION_NAME).build();
+
     service;
   }
 }

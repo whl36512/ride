@@ -1,83 +1,120 @@
+drop function trip_pkg.trip_maint;
 -- function
-CREATE OR REPLACE FUNCTION trip_pkg.trip_maint (trip trip_type, maint_ind char(1), maint_usr id) RETURNS integer AS $$
+CREATE OR REPLACE FUNCTION trip_pkg.trip_maint (
+	trip_id 		id
+	, driver_id		id
+	, start_date	date	
+	, end_date		date	
+	, start_time	time	
+	, start_loc 	location
+	, end_loc 		location
+	, distance		real	
+	, price			real	
+	, recur_ind		boolean 
+	, status_code	char(1) 
+	, desc_txt		text
+	, seats			integer	
+	, day0_ind		boolean	
+	, day1_ind		boolean	
+	, day2_ind		boolean	
+	, day3_ind		boolean 
+	, day4_ind		boolean 
+	, day5_ind		boolean 
+	, day6_ind		boolean 
+	, rec_creat_ts 	sys_ts
+	, rec_mod_ts 	sys_ts
+	, rec_creat_usr	id
+	, maint_ind     char(1)
+	, maint_usr id) 
+RETURNS int AS $$
 DECLARE
-	int return_code := 1;
-	int selected := 0;
+	return_code int default 1;
+	selected int default 0;
 BEGIN
+--     raise info 'enter';
 	CASE maint_ind 
 		WHEN 'N', 'n' THEN
-			insert into table trip (driver_id, start_date, end_date, start_time, start_loc, end_loc, 
-									price, recur_code, status_code, desc_txt, seats, day0_ind, day1_ind, day2_ind, day3_ind,
-									day4_ind, day5_ind, day6_ind, rec_creat_ts, rec_creat_usr)
-			values (trip.driver_id
-					, trip.start_date 
-					, trip.end_date 
-					, trip.start_time 
-					, trip.start_loc 
-					, trip.end_loc 
-					, trip.price 
-					, trip.recur_code
-					, 'P'
-					, trip.desc_txt 
-					, trip.seat 
-					, trip.day0_ind 
-					, trip.day1_ind 
-					, trip.day2_ind 
-					, trip.day3_ind 
-					, trip.day4_ind 
-					, trip.day5_ind 
-					, trip.day6_ind
-					, sysdate
-					, maint_usr);			
-		WHEN 'U', 'u' THEN
-			select count(*) into selected
-			from book
-			where trip_id = trip.trip_id
-			limit 1;
-			
-			if selected = 0 then
-				update table trip 
-				set driver_id = trip.driver_id
-					, start_date = trip.start_date 
-					, end_date = trip.end_date 
-					, start_time = trip.start_time 
-					, start_loc = trip.start_loc 
-					, end_loc = trip.end_loc 
-					, price = trip.price 
-					, recur_code = trip.recur_code
-					, status_code = 'P'
-					, desc_txt = trip.desc_txt 
-					, seats = trip.seat 
-					, day0_ind = trip.day0_ind 
-					, day1_indtrip.day1_ind 
-					, day2_indtrip.day2_ind 
-					, day3_indtrip.day3_ind 
-					, day4_indtrip.day4_ind 
-					, day5_indtrip.day5_ind 
-					, day6_indtrip.day6_ind
-				where trip_id = trip.trip_id;
+			with a as (
+				insert into trip (rec_creat_ts, rec_creat_usr)
+						values (current_time, maint_usr)																																												
+				returning *)	
+			update trip
+			set driver_id = driver_id
+				, start_date = start_date
+				, end_date = end_date
+				, start_time = start_time
+				, start_loc = start_loc
+				, end_loc = end_loc
+				, price = price
+				, recur_ind = recur_ind
+				, status_code = 'P'
+				, desc_txt = desc_txt
+				, seat = seat
+				, day0_ind = day0_ind
+				, day1_ind = day1_ind
+				, day2_ind = day2_ind 
+				, day3_ind = day3_ind
+				, day4_ind = day4_ind
+				, day5_ind = day5_ind
+				, day6_ind = day6_ind
+				, rec_mod_ts = current_timestamp
+			where trip_id = (select trip_id from a);
+-- 			raise info 'insert';
 				return_code = 0;
-			end if;
+-- 			raise info '%', return_code;
+-- 		WHEN 'U', 'u' THEN
+-- 			select count(*) into selected
+-- 			from book
+-- 			where trip_id = trip.trip_id;
 			
-		WHEN 'D', 'd' THEN
-			select count(*) into selected
-			from book
-			where trip_id = trip.trip_id
-			limit 1;
+-- 			if selected = 0 then
+-- 				update trip 
+-- 				set driver_id = trip.driver_id
+-- 					, start_date = trip.start_date 
+-- 					, end_date = trip.end_date 
+-- 					, start_time = trip.start_time 
+-- 					, start_loc = trip.start_loc 
+-- 					, end_loc = trip.end_loc 
+-- 					, price = trip.price 
+-- 					, recur_code = trip.recur_code
+-- 					, status_code = 'P'
+-- 					, desc_txt = trip.desc_txt 
+-- 					, seats = trip.seat 
+-- 					, day0_ind = trip.day0_ind 
+-- 					, day1_ind = trip.day1_ind 
+-- 					, day2_ind = trip.day2_ind 
+-- 					, day3_ind = trip.day3_ind 
+-- 					, day4_ind = trip.day4_ind 
+-- 					, day5_ind = trip.day5_ind 
+-- 					, day6_ind = trip.day6_ind
+-- 				where trip_id = trip.trip_id;
+-- 				return_code = 0;
+--  			else 
+--  				raise exception 'Can not update booked trip';
+-- 			end if;
 			
-			if selected = 0 then
-				update table trip 
-				set  status_code = 'D'
-				where trip_id = trip.trip_id;
+-- 		WHEN 'D', 'd' THEN
+-- 			select count(*) --into selected
+-- 			from trip
+-- 			where trip_id = 'e4d766ba-d9dd-4e63-a64e-1dbb7811c6e2'
+-- 			;
+			
+-- 			if selected = 0 then
+-- 				raise exception 'Trip not exist';
+-- 			elsif  selected = 1 then
+-- 				update trip 
+-- 				set  status_code = 'D'
+-- 				where trip_id = trip.trip_id;
 				return_code = 0;
-			end if;
+-- 			elsif selected = 2 then
+-- 				raise exception 'More than 1 trip with the same ID';
+-- 			end if;
 			
 	END CASE;
 	return return_code;
-EXCEPTION
-	WHEN ERRCODE THEN
-		ereport(ERROR, (errcode(ERRCODE)))
-
-	return return_code;
+EXCEPTION 
+	WHEN others THEN
+		raise notice '% %', SQLERRM, SQLSTATE;
+		return return_code;
 END;
 $$ LANGUAGE plpgsql;

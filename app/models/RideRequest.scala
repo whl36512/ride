@@ -3,6 +3,8 @@ package com.beegrove.ride
 import play.api.mvc._
 import play.api.mvc.Result._
 import play.api.Logger
+import play.api.libs.json._
+
 
 case class RideRequest (request: Request[AnyContent]) {
   def inspect () = {
@@ -42,6 +44,16 @@ case class RideRequest (request: Request[AnyContent]) {
     fieldMap
   }
  
+  def parsePostQuery = {
+// post query into json
+    val data : Map[String, String] = request.body.asFormUrlEncoded.get.map { case (k, v) => ( k -> v(0) ) } // get form data from POST. Assumming each param has only one value
+    Logger.debug (s"201807251152 RideRequest.parsePostQuery data=$data")
+    val jsonString: String = "{" + data.map{case (k,v) => s""" "$k":"$v" """}.mkString(",") + "}"
+    Logger.debug (s"201807251152 RideRequest.parsePostQuery jsonString=$jsonString")
+    val jsValue: JsValue= Json.parse (jsonString)
+    Logger.debug (s"201807251152 RideRequest.parsePostQuery jsValue=$jsValue")
+    jsValue
+  }
 
   def authStatus  = {
     val idInSession =this.getSessionCookie("profile.id") // linkedin id
