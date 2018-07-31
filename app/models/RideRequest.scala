@@ -1,13 +1,15 @@
 package com.beegrove.ride
 
 import play.api.mvc._
-import play.api.mvc.Result._
+import play.api.mvc.Result
 import play.api.Logger
 import play.api.libs.json._
-
+import models.db.tables.UsrTable
 
 case class RideRequest (request: Request[AnyContent]) {
-  def inspect () = {
+  val dummy = inspect ;
+  val dummy2 = authStatus;
+  def inspect  = {
     Logger.debug("201807140858: inspect request begin -------------------------" )
     Logger.debug("201807140858: request=" + this.request)
     Logger.debug("201807140858: request.uri=" + this.request.uri)
@@ -27,9 +29,26 @@ case class RideRequest (request: Request[AnyContent]) {
     if (cookieOpt.isEmpty) ""
     else cookieOpt.get.value
   }
+
+  def getCookies(cookieNames: Seq[String]): Seq[Option[String]] = {
+    val cookies = this.request.cookies
+    val cookieOpts = cookieNames.map ( cookieName => cookies.get(cookieName))
+    val cookieValues= cookieOpts.map{ case None => None; case Some(c) => Some(c.value)}
+    Logger.debug("201807261849 RideRequest.getCookies cookieValues=" + cookieValues )
+    cookieValues
+  }
+
   def getSessionCookie(name:String): String = {
     this.request.session.data.get(name).getOrElse("")
   }
+
+  def getSessionCookies(cookieNames: Seq[String]): Seq[Option[String]] = {
+    val session = this.request.session
+    val valueOpts = cookieNames.map ( cookieName => session.get(cookieName))
+    Logger.debug("201807261849 RideRequest.getSessionCookies valueOpts=" + valueOpts )
+    valueOpts
+  }
+
 
   def parseGetQuery(names: Array[String]) = {
         // fields are the name part of a GET query
@@ -55,23 +74,24 @@ case class RideRequest (request: Request[AnyContent]) {
     jsValue
   }
 
-  def authStatus  = {
-    val idInSession =this.getSessionCookie("profile.id") // linkedin id
-    val idInCookie = this.getCookie("profile.id")  // linkedin id
-    val isProfileComplete = this.getSessionCookie("isProfileComplete")  // linkedin id
-    Logger.debug(s"201807161121     isProfileComplete=$isProfileComplete  idInSession=$idInSession     idInCookie=$idInCookie")
+  def authStatus : (String, UsrTable, UsrTable) = {
+    val userFrom3PartyAuth = UsrTable.userFrom3PartyAuth(this)
+    val userFromSession    = UsrTable.userFromSession   (this)
     
-    val authStatus = (isProfileComplete, idInSession, idInCookie) match {
-	case (z, "", "")  					=> RideRequest.NOT_SIGNED_IN
-        case (z, "", x)   					=> RideRequest.CLIENT_SIDE_SIGNIN
-        case (z, x , "")  					=> RideRequest.CLIENT_SIDE_SIGNOUT
-        case (RideRequest.ProfileComplete, x , y) if x==y  	=> RideRequest.SIGNED_IN_COMPLETE_PROFILE
-        case (z, x , y)                           if x==y  	=> RideRequest.SIGNED_IN_INCOMPLETE_PROFILE
-        case (z, x , y) 			  if x!=y 	=> RideRequest.CLIENT_SIDE_SIGNIN_AS_DIFF_ID
-	case _   						=> RideRequest.CASE_SHOULD_NEVER_HAPPEN
+    val isProfileComplete = userFromSession.isUserProfileComplete
+    Logger.debug(s"201807161121     isProfileComplete=$isProfileComplete idInSession=${userFromSession.oauth_id}  idInCookie=${userFrom3PartyAuth.oauth_id}")
+    
+    val authStatus = (isProfileComplete, userFromSession.oauth_id, userFrom3PartyAuth.oauth_id ) match {
+	case (z     , None    , None )  	 => RideRequest.NOT_SIGNED_IN
+        case (z     , None    , Some(x))   	 => RideRequest.CLIENT_SIDE_SIGNIN
+        case (z     , Some(x) , None )  	 => RideRequest.CLIENT_SIDE_SIGNOUT
+        case (true  , Some(x) , Some(y)) if x==y => RideRequest.SIGNED_IN_COMPLETE_PROFILE
+        case (false , Some(x) , Some(y)) if x==y => RideRequest.SIGNED_IN_INCOMPLETE_PROFILE
+        case (z     , Some(x) , Some(y)) if x!=y => RideRequest.CLIENT_SIDE_SIGNIN_AS_DIFF_ID
+	case _                                   => RideRequest.CASE_SHOULD_NEVER_HAPPEN
     }
     Logger.debug(s"201807161128 authStatus=$authStatus")
-    authStatus
+    (authStatus, userFrom3PartyAuth, userFromSession)
   }
 
   def body = this.request.body
@@ -99,10 +119,37 @@ object RideRequest {
 	final val CLIENT_SIDE_SIGNIN_AS_DIFF_ID  ="CLIENT_SIDE_SIGNIN_AS_DIFF_ID"
 	final val CASE_SHOULD_NEVER_HAPPEN  ="CASE_SHOULD_NEVER_HAPPEN"
 	final val SIGNED_IN_INCOMPLETE_PROFILE="SIGNED_IN_INCOMPLETE_PROFILE"
-
-
-        final val ProfileComplete ="ProfileComplete"
-        final val ProfileInComplete ="ProfileInComplete"
 }
 
+class RideResultHead  {
+  type SESSION = List[(String, String)]
+  type COOKIES = List[(String, String)]
+  type FLASH   = List[(String, String)]
+
+  var session  = List[(String, String)]()
+  var cookies  = List[(String, String)]()
+  var flash    = List[(String, String)]()
+
+  def attachTo(result: Result, session:play.api.mvc.Session): Result = {
+    var newSession = session
+    for ( s<- this.session) {
+      newSession = s match {
+       case (_ , "") => newSession     // do not set empty session cookie
+       case _        => newSession + s 
+      }
+    }
+    result.withSession(newSession).flashing(flash:_*)
+  }
+
+  def addFlash(flash: FLASH) = {
+      this.flash= this.flash ++ flash
+  }
+  def addCookie(cookies: COOKIES)  = {
+      this.cookies= this.cookies ++ cookies
+  }
+
+  def addSession(session: SESSION) = {
+      this.session =  this.session ++ session
+  }
+}
 

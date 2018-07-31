@@ -25,6 +25,7 @@ CREATE DOMAIN textwithdefault as text not null default '' ;
 CREATE DOMAIN sys_ts timestamp with time zone not null default clock_timestamp();
 CREATE DOMAIN tswithepoch timestamp with time zone not null default '1970-01-01 00:00:00Z' ;
 CREATE DOMAIN score integer  CHECK ( value in (1,2,3,4,5));
+CREATE DOMAIN ridemoney decimal(10,2) ;
 
 --CREATE TYPE location AS
    --(
@@ -40,17 +41,19 @@ CREATE DOMAIN score integer  CHECK ( value in (1,2,3,4,5));
 create table usr
 (
 	usr_id 			sys_id
-	, first_name		textwithdefault
-	, last_name		textwithdefault
+	, first_name		text
+	, last_name		text
+        , headline              text
 	, email 		email 
 	, bank_email 		email
 	, member_since 		sys_ts
 	, trips_posted 		integer not null default 0
 	, trips_completed 	integer not null default 0
-	, rating		real not null default 0
-	, balance		real not null default 0
-	, oauth_id		textwithdefault
+	, rating		decimal (5,2) not null default 0
+	, balance		ridemoney not null default 0
+	, oauth_id		text not null
 	, oauth_host		text not null default 'linkedin'
+        , deposit_id            sys_id
         , c_ts 			sys_ts
         , m_ts 			sys_ts
 	, constraint pk_usr PRIMARY KEY (usr_id)
@@ -63,20 +66,20 @@ CREATE TABLE trip
         , driver_id             sys_id
         , start_date            date    not null
         , end_date              date    -- last date if recurring, null otherwise
-        , start_time    	time    not null default current_time
+        , departure_time    	time    not null default current_time
 	, start_loc		textwithdefault
 	, start_display_name	textwithdefault
-	, start_lat		double precision not null default 0
-	, start_lon		double precision not null default 0
+	, start_lat		decimal(18,14) not null default 0
+	, start_lon		decimal(18,14) not null default 0
 	, end_loc		textwithdefault
 	, end_display_name	textwithdefault
-	, end_lat		double precision not null default 0
-	, end_lon		double precision not null default 0
-        , distance              real    not null default 0
-        , price                 real    not null default 0.1 -- price per mile
+	, end_lat		decimal(18,14) not null default 0
+	, end_lon		decimal(18,14) not null default 0
+        , distance              decimal(8,2)    not null default 0
+        , price                 ridemoney    not null default 0.1 -- price per mile
         , recur_ind             boolean not null default false
         , status_code           char(1) not null default  'P' -- Pending, Active,  Cancelled,  Expired
-        , desc_txt              textwithdefault
+        , description           text
         , seats                 integer not null default 3
         , day0_ind              boolean not null default false          -- sunday
         , day1_ind              boolean not null default false
@@ -87,7 +90,7 @@ CREATE TABLE trip
         , day6_ind              boolean not null default false
         , c_ts                  sys_ts
         , m_ts                  sys_ts
-        , rec_creat_usr 	textwithdefault
+        , c_usr 		text
         , constraint pk_trip PRIMARY KEY (trip_id)
 );
 
@@ -112,32 +115,39 @@ values
 create table book
 (
 	book_id			sys_id
-	, trip_id		uuid not null 
-	, rider_id		uuid not null 
-	, trip_date		date not null
-	, price			real not null
-	, money_to_driver	real not null default 0
-	, money_to_rider	real not null default 0
+	, trip_id		sys_id
+	, rider_id		sys_id 
+	, trip_date		date not null default '1970-01-01'
+	, price			ridemoney not null default 0
+	, money_to_driver	ridemoney not null default 0
+	, money_to_rider	ridemoney not null default 0
 	, book_status_cd	char(1) not null default  'C' -- Considering, insufficient Balance, Resered, trip Started, Finished, cancelled by Rider, cancelled by Driver
 	, rider_score		smallint  CHECK ( rider_score in (1,2,3,4,5))
 	, driver_score		smallint  CHECK ( rider_score in (1,2,3,4,5))
-	, rider_comment		textwithdefault
-	, driver_comment	textwithdefault
+	, rider_comment		text
+	, driver_comment	text
+	, c_ts			sys_ts
+	, m_ts			sys_ts
 	, book_ts		sys_ts
-	, driver_cancel_ts	tswithepoch
-	, rider_cancel_ts	tswithepoch
-	, finish_ts		tswithepoch
+	, driver_cancel_ts	timestamp with time zone
+	, rider_cancel_ts	timestamp with time zone
+	, finish_ts		timestamp with time zone
 	, constraint pk_book PRIMARY KEY (book_id)
 );
 
 create table money_trnx (
-	money_trnx_id	sys_id
-	, usr_id	sys_id
-	, trnx_cd	textwithdefault
-	, amount	real not null
-	, trnx_ts	sys_ts
-	, reference_no	textwithdefault
-	, cmnt 		textwithdefault
+	money_trnx_id	        sys_id
+	, usr_id	        sys_id
+	, trnx_cd	        textwithdefault  -- Deposit, Withdraw
+	, requested_amount	ridemoney 
+	, actual_amount	        ridemoney
+	, request_ts	        timestamp with time zone
+	, actual_ts	        timestamp with time zone
+        , bank_email            email
+	, reference_no	        text
+	, cmnt 		        text
+	, c_ts			sys_ts
+	, m_ts			sys_ts
 	, constraint pk_money_trnx PRIMARY KEY (money_trnx_id)
 );
 

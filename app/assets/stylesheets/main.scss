@@ -16,5 +16,27 @@
         position: absolute;
         left: 0px;
         top: 0px;
-        background-color: rgba(255, 255, 255, 0.5)
+        background-color: rgba(255, 255, 255, 0.5) ;
+}
+
+div#deposit{
+    	width: 60%;
+        border: 1px solid  rgba(255, 255, 255, 1) ;
+        background-color: rgba(255, 255, 255, 1) ;
+        padding: 1rem;
+}
+div#withdraw{
+    	width: 60%;
+        border: 1px solid  rgba(255, 255, 255, 1) ;
+        background-color: rgba(255, 255, 255, 1) ;
+        padding: 1rem;
+}
+
+div.warn{
+        margin: auto;
+        border: 1px solid  rgba(255, 255, 255, 1) ;
+        background-color: yellow ;
+        padding: 1rem;
+        font-size: 1.2rem; 
+
 }

@@ -10,10 +10,6 @@ import play.api.Logger
 import play.api.libs.json._
 import models.db.tables._
 
-
-
-
-
 //class SQLReslut @Inject() (db: Database, SQL: String) extends ResultSet {
 
 object SQLResult  {
@@ -24,7 +20,7 @@ object SQLResult  {
     try {
       val stmt = conn.createStatement
       val rs : ResultSet = stmt.executeQuery(SQL)
-      return ResultSetConverter.toJSONArray3(rs)
+      ResultSetConverter.toJSONArray3(rs)
 
     } finally {
       conn.close()
@@ -53,7 +49,7 @@ object SQLResult  {
   }
 */
 
-  def apply (SQL: String, params: Array[String])(implicit db:Database) : JsArray  = {
+  def apply (SQL: String, params: Array[String], expectedRow:Int = 1)(implicit db:Database) : JsArray  = {
   // the SQL should produce Json. each one json string per row
     Logger.debug(s"201807240936 SQLResult.apply SQL=$SQL")
     Logger.debug("201807240936 SQLResult.apply params=" + params.mkString(",") )
@@ -68,10 +64,29 @@ object SQLResult  {
       }
       stmt.execute()
       val resultSet = stmt.getResultSet() // expect rs in json format
-      return ResultSetConverter.toJSONArray3(resultSet)
+      val jsArray =  ResultSetConverter.toJSONArray3(resultSet)
+
+      conn.close()
+
+      ( expectedRow, jsArray.value.size) match {
+
+        case (1, 1) => jsArray
+        case (1, 0) => jsArray
+        case (1, _) => 
+          Logger.error("201807261641 SQLResult.apply expect 1 row, but retrieved multiple rows. Cleaning output.")
+          new JsArray()
+        case _      => jsArray
+      }
+      
     } finally {
       conn.close()
     }
+  }
+
+  def run1 (SQL: String, params: Array[Option[String]], expectedRow:Int )(implicit db:Database) : JsArray  = {
+    val paramCount= if (params==null)  0 else params.length
+    val stringParams = params.map { case None => null; case Some(y) => y }
+    apply ( SQL, stringParams, expectedRow)
   }
 }
 
@@ -141,13 +156,18 @@ object ResultSetConverter  {
   def toJSONArray3(resultSet: ResultSet) = {
   //result set is in json string, one string per row
     var jsonArray = new JsArray()
+    val non_string_pattern = """:([0-9a-zA-Z\.\-]+),""".r
+    val null_pattern       =""":"null",""".r                   ; //null should stay null instead of "null"
 
     if (resultSet.next()) {
       do {
         val row = resultSet.getObject(1).toString;
-        Logger.debug("201807240940 SQLResult.toJSONArray3 row=" + row)
-        val json: JsValue = Json.parse(row)
-        Logger.debug("201807240940 SQLResult.toJSONArray3 json=" + json)
+        val reformated_row = non_string_pattern.replaceAllIn(row, m => (s""":"${m.group(1)}",""" ) ) //double quote all unquoted value
+        val reformated_row2 = null_pattern.replaceAllIn(reformated_row, m => ":null," ) //switch "null" back to null
+
+        Logger.debug("201807240940 SQLResult.toJSONArray3 reformated_row2=" + reformated_row2)
+        val json: JsValue = Json.parse(reformated_row2)
+        //Logger.debug("201807240940 SQLResult.toJSONArray3 json=" + json)
         jsonArray = jsonArray :+  ( json)
         Logger.debug("201807240953 SQLResult.toJSONArray3 jsonArray="+jsonArray)
       } while (resultSet.next())
@@ -179,4 +199,5 @@ object ResultSetConverter  {
     }
     table
   }
+
 }

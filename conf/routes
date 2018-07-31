@@ -5,7 +5,7 @@
 
 # An example controller showing a sample home page
 GET     /                           controllers.HomeController.index
-POST     /                           controllers.HomeController.index
+POST    /                           controllers.HomeController.index
 GET     /index.html                 controllers.HomeController.index
 
 # Map static resources from the /public folder to the /assets URL path
@@ -13,8 +13,12 @@ GET     /assets/*file               controllers.Assets.versioned(path="/public",
 
 
 GET     /linkedin/callback          controllers.HomeController.linkedinCallback
-GET     /newoffer          controllers.HomeController.newoffer
-POST    /saveoffer          controllers.HomeController.saveoffer
-GET    /profile          controllers.HomeController.profile
-POST    /saveprofile          controllers.HomeController.saveprofile
-GET    /search          controllers.HomeController.search
+GET     /signout                    controllers.HomeController.signout
+GET     /newtrip                    controllers.HomeController.newtrip
+POST    /savetrip                   controllers.HomeController.savetrip
+GET     /profile                    controllers.HomeController.profile
+POST    /saveprofile                controllers.HomeController.saveprofile
+GET     /search                     controllers.HomeController.search
+GET     /deposit                    controllers.HomeController.deposit
+GET     /withdraw                   controllers.HomeController.withdraw
+POST    /savewithdraw               controllers.HomeController.savewithdraw

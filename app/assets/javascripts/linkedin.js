@@ -41,9 +41,9 @@ var ride = {
     },
 
 
-    newoffer : function () {
+    newtrip : function () {
 	this.checkAuth();
-	if (getCookie("profile.id") !== "") window.location = '/newoffer';
+	if (getCookie("profile.id") !== "") window.location = '/newtrip';
     },
 
     checkAuth: function () {
@@ -69,7 +69,7 @@ var ride = {
     signoutCallback: function () {
         clearProfileInCookie() ;
         console.log("INFO 201807131556 Signed Out !") ;
-	window.location.reload(true);              // use true to reload page from server
+	window.location.replace("/signout");              // use true to reload page from server
     }
 };
 

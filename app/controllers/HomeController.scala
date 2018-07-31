@@ -75,6 +75,11 @@ class HomeController @Inject()(	ec: ExecutionContext
    val dbc = new PostgresAsyncContext[Literal](Literal, "db.default");
 //   val dbc = new PostgresAsyncContext[Literal]("db.default");
 
+  val redirect_need_signin = Redirect("/").withNewSession.flashing( "flashMsgType" -> "error", "flashMsg" -> "Requested Action requires sign in. Please sign in")
+  val redirect_signed_out = Redirect("/").withNewSession.flashing( "flashMsg" -> "You are signed out", "flashMsgType" -> "warn")
+  val redirect_security_impossible = Redirect("/").withNewSession
+
+
   def todo = TODO
 
   def echo = Action {  implicit request: Request[AnyContent] =>
@@ -85,66 +90,147 @@ class HomeController @Inject()(	ec: ExecutionContext
 
   def index() = Action { implicit request: Request[AnyContent] =>
     val rideRequest = RideRequest (request) ;
-    rideRequest.inspect ;
     Ok(views.html.index()) ;
   }
+
+  def signout() = Action { implicit request: Request[AnyContent] =>
+    redirect_signed_out
+  }
+
   def search() = Action { implicit request: Request[AnyContent] =>
     val rideRequest = RideRequest (request) ;
-    rideRequest.inspect ;
     Ok("search") ;
   }
 
 
   def profile =  Action.async {  implicit request: Request[AnyContent] =>
     val rideRequest = RideRequest (request) ;
-    rideRequest.inspect ;
     val usrFrom3Party :UsrTable= UsrTable.userFrom3PartyAuth(rideRequest) ;
 
-    val usr = UsrTable.get(usrFrom3Party.oauth_id) 
-    val usr1 = usr match {
-      case None      => usrFrom3Party
-      case Some(usr) => usr.copy(last_name=usrFrom3Party.last_name, first_name=usrFrom3Party.first_name)
-    }    
+    val usrArray: JsArray = 
+      SQLResult.run1("select row_to_json(a) from funcs.updateusr(in_oauth_id => ? , in_last_name => ? , in_first_name => ? , in_headline => ?) a"
+                , Array(usrFrom3Party.oauth_id , usrFrom3Party.last_name, usrFrom3Party.first_name, usrFrom3Party.headline)
+                , 1
+      )
+    val usrFromDb = UsrTable.fromJson((usrArray.value) (0)).get
+
     Future {
-      checkSecurityAndThen(Ok(views.html.profile(usr1))) ;
+      checkSecurityAndThen(Ok(views.html.profile(usrFromDb))) ;
     }(ec)
   }
 
-  def newoffer = Action {  implicit request: Request[AnyContent] =>
+  def newtrip = Action {  implicit request: Request[AnyContent] =>
     val rideRequest = RideRequest (request) ;
-    rideRequest.inspect ;
-    checkSecurityAndThen(Ok(views.html.newoffer())) ;
+    checkSecurityAndThen(Ok(views.html.trip())) ;
   }
 
-  def saveoffer = Action.async { implicit request: Request[AnyContent] =>  
-    val rideRequest = RideRequest (request) ;
-    rideRequest.inspect ;
+  def savetrip = Action.async { implicit request: Request[AnyContent] =>  
+    val rideRequest                             = RideRequest (request) ;
+    val (authStatus, userFrom3ParthAuth, userFromSession)  = rideRequest.authStatus ;
+    
     Future {
-      checkSecurityAndThen(Ok("saveoffer"))
+      authStatus match {
+        case RideRequest.SIGNED_IN_COMPLETE_PROFILE => 
+          val tripFromPost                = Trip.fromJson(rideRequest.parsePostQuery).get ;
+          val trip_to_db   : Trip         = tripFromPost.copy(p1=tripFromPost.p1.copy(driver_id = userFromSession.usr_id))
+          val trip_from_db : Option[Trip] = trip_to_db.upd
+          Ok(views.html.trip(trip=trip_from_db.get, saved=true))
+        case _                      => redirect_security_impossible
+      } 
     }(ec)
   }
 
   def saveprofile = Action.async { implicit request: Request[AnyContent] =>  
     val rideRequest = RideRequest (request) ;
-    rideRequest.inspect ;
+    val (authStatus, userFrom3ParthAuth, userFromSession)  = rideRequest.authStatus ;
+
     val js: JsValue = rideRequest.parsePostQuery ;
-    val usr = UsrTable.fromJson(js) ;
-    val usrFromSession :UsrTable= UsrTable.userFromSession(rideRequest) ;
-          
-    // save to db
-    val usrArray: JsArray = 
-      SQLResult("select row_to_json(a) from funcs.updateusr(in_oauth_id => ? , in_last_name => ? , in_first_name => ? , in_email => ? ) a"
-                , Array(usrFromSession.oauth_id.get , usr.get.last_name.get, usr.get.first_name.get, usr.get.email.get)
-      )
-    val usrFromDb = UsrTable.fromJson((usrArray.value) (0)).get
-    
+    val userFromPost = UsrTable.fromJson(js) ;
     Future {
-	val check = checkSecurity 
-      check match {
-        case None => 
-          Ok(views.html.profile(usrFromDb, true))
-        case Some(c)    => c
+      if (authStatus == RideRequest.SIGNED_IN_COMPLETE_PROFILE || authStatus ==  RideRequest.SIGNED_IN_INCOMPLETE_PROFILE)
+      {
+          // save to db
+          val usrArray: JsArray = 
+            SQLResult.run1("select row_to_json(a) from funcs.updateusr(in_oauth_id => ? , in_last_name => ? , in_first_name => ? , in_email => ? ) a"
+                , Array(userFromSession.oauth_id , userFromPost.get.last_name, userFromPost.get.first_name, userFromPost.get.email)
+                ,1 
+            )
+          val userFromDb = UsrTable.fromJson((usrArray.value) (0)).get
+ 	  Ok(views.html.profile(userFromDb, true))
       }
+      else redirect_security_impossible
+    }(ec)
+  }
+
+  def deposit = Action.async { implicit request: Request[AnyContent] =>  
+    val rideRequest = RideRequest (request) ;
+    val (authStatus, userFrom3ParthAuth, userFromSession)  = rideRequest.authStatus ;
+
+    Future {
+      if (authStatus == RideRequest.SIGNED_IN_COMPLETE_PROFILE )
+      {
+          val usrArray: JsArray = 
+            SQLResult.run1("""select row_to_json(a) from usr a where a.usr_id = ?::uuid """
+                , Array(userFromSession.usr_id)
+                , 1
+            )
+          val userFromDb = UsrTable.fromJson((usrArray.value) (0)).get
+ 	  Ok(views.html.deposit(user=userFromDb))
+      }
+      else Ok(views.html.deposit(general_info_only=true ))
+    }(ec)
+  }
+
+  def withdraw = Action.async { implicit request: Request[AnyContent] =>  
+    val rideRequest = RideRequest (request) ;
+    val (authStatus, userFrom3ParthAuth, userFromSession)  = rideRequest.authStatus ;
+
+    Future {
+      if (authStatus == RideRequest.SIGNED_IN_COMPLETE_PROFILE )
+      {
+          val usrArray: JsArray = 
+            SQLResult.run1("""select row_to_json(a) from usr a where a.usr_id = ?::uuid """
+                , Array(userFromSession.usr_id)
+                , 1
+            )
+          val userFromDb = UsrTable.fromJson((usrArray.value) (0)).get
+ 	  Ok(views.html.withdraw(user=userFromDb))
+      }
+      else Ok(views.html.withdraw(general_info_only=true ))
+    }(ec)
+  }
+
+  def savewithdraw = Action.async { implicit request: Request[AnyContent] =>  
+    val rideRequest = RideRequest (request) ;
+    val (authStatus, userFrom3ParthAuth, userFromSession)  = rideRequest.authStatus ;
+    val js: JsValue = rideRequest.parsePostQuery ;
+    val userFromPost = UsrTable.fromJson(js) ;
+
+    val moneyTranxFromPost = Money_trnx.fromJson(js); 
+
+    Future {
+      if (authStatus == RideRequest.SIGNED_IN_COMPLETE_PROFILE )
+      {
+          val usrArray:  JsArray =
+            SQLResult.run1("""select row_to_json(a)
+                              from funcs.updateusr(in_oauth_id => ?, in_bank_email => ?) a """
+                , Array(userFromSession.oauth_id, moneyTranxFromPost.get.bank_email)
+                , 1
+            )
+          val userFromDb = UsrTable.fromJson((usrArray.value) (0)).get
+ 
+          
+          val trnxArray: JsArray = 
+            SQLResult.run1("""select row_to_json(a) 
+                              from funcs.update_money_trnx(usr_id => ?, trnx_cd => ?, bank_email => ?, requested_amount => ?) a 
+                           """
+                , Array(userFromSession.usr_id, Some(Money_trnx.values.WITHDRAW), moneyTranxFromPost.get.bank_email, moneyTranxFromPost.get.requested_amount)
+                , 1
+            )
+          val trnxFromDb = Money_trnx.fromJson((trnxArray.value) (0)).get
+ 	  Ok(views.html.withdraw(user=userFromDb, money_trnx = trnxFromDb, saved=true))
+      }
+      else Ok(views.html.withdraw(general_info_only=true ))
     }(ec)
   }
 
@@ -186,72 +272,42 @@ class HomeController @Inject()(	ec: ExecutionContext
     }
   }
 
-  def checkSecurity( implicit request :  Request[AnyContent]) : Option[Result] = {
+  def checkSecurityAndThen( result: Result)(implicit request :  Request[AnyContent]) : Result= {
     val rideRequest		= RideRequest(request);
+    val (authStatus, userFrom3PartyAuth, userFromSession)  = rideRequest.authStatus ;
 
-    val result = rideRequest.authStatus match {
-      case RideRequest.NOT_SIGNED_IN 		=> 
-        Redirect("/").withNewSession
-		.flashing( "flashMsgType" -> "error", "flashMsg" -> "Requested Action requires sign in. Please sign in")
-      case RideRequest.CLIENT_SIDE_SIGNOUT		=>
-        Redirect("/").withNewSession.flashing( "flashMsg" -> "You are signed out", "flashMsgType" -> "warn")
-      case RideRequest.SIGNED_IN_COMPLETE_PROFILE	=>
-        null	
-      case RideRequest.CASE_SHOULD_NEVER_HAPPEN		=> 
-        Redirect("/").withNewSession
-      case _						=>
+    authStatus match {
+      case RideRequest.NOT_SIGNED_IN 		        => redirect_need_signin
+      case RideRequest.CLIENT_SIDE_SIGNOUT		=> redirect_signed_out
+      case RideRequest.SIGNED_IN_COMPLETE_PROFILE	=> result	
+      case RideRequest.CASE_SHOULD_NEVER_HAPPEN		=> redirect_security_impossible
+      case _                                            =>
       //RideRequest.CLIENT_SIDE_SIGNIN		
       //RideRequest.SIGNED_IN_INCOMPLETE_PROFILE
       //RideRequest.CLIENT_SIDE_SIGNIN_AS_DIFF_ID
-        val user :UsrTable= UsrTable.userFrom3PartyAuth(rideRequest) ;
-        if (user.isUserProfileComplete ) {  // User Profile at Database is complete
-          null
-            //.withSession(request.session + ("isProfileComplete" -> RideRequest.ProfileComplete) + ("profile.id" -> user.oauth_id))
-            //.flashing( "flashMsg" -> ("Welcome" + user.first_name) , "flashMsgType" -> "info")
+        val userFromDb = UsrTable.userFromDb(userFrom3PartyAuth) ;
+        if (userFromDb.isUserProfileComplete ) {  // User Profile at Database is complete
+          result match {
+           case null => result
+           case _    =>
+             result
+              .withSession(request.session + (UsrTable.names.IS_PROFILE_COMPLETE -> UsrTable.values.PROFILE_COMPLETE) 
+                                           + (UsrTable.names.OAUTH_ID -> userFromDb.oauth_id.get)
+                                           + (UsrTable.names.USR_ID   -> userFromDb.usr_id.get)
+                        )
+              .flashing( "flashMsg" -> ("Welcome" + userFromDb.first_name) , "flashMsgType" -> "info")
+          }
         }
         else // User Profile at Database is not complete
 	{
-          Ok(views.html.profile(user))
+          val result = Ok(views.html.profile(userFromDb))
           //Redirect(routes.HomeController.profile(user))
-            .withSession(request.session + ("profile.id" -> user.oauth_id.get) + ("isProfileComplete" -> RideRequest.ProfileInComplete))
-              .flashing( "flashMsg" -> "Please complete your profile" , "flashMsgType" -> "warn")
-        }
-    }
-    result match {
-      case null  => None
-      case r     => Some(r)
-    }
-  }
-
-  def checkSecurityAndThen( result: Result)( implicit request :  Request[AnyContent]) : Result = {
-    val rideRequest		= RideRequest(request);
-
-    rideRequest.authStatus match {
-      case RideRequest.NOT_SIGNED_IN 		=> 
-        Redirect("/").withNewSession
-		.flashing( "flashMsgType" -> "error", "flashMsg" -> "Requested Action requires sign in. Please sign in")
-      case RideRequest.CLIENT_SIDE_SIGNOUT		=>
-        Redirect("/").withNewSession.flashing( "flashMsg" -> "You are signed out", "flashMsgType" -> "warn")
-      case RideRequest.SIGNED_IN_COMPLETE_PROFILE	=>
-        result	
-      case RideRequest.CASE_SHOULD_NEVER_HAPPEN		=> 
-        Redirect("/").withNewSession
-      case _						=>
-      //RideRequest.CLIENT_SIDE_SIGNIN		
-      //RideRequest.SIGNED_IN_INCOMPLETE_PROFILE
-      //RideRequest.CLIENT_SIDE_SIGNIN_AS_DIFF_ID
-        val user :UsrTable= UsrTable.userFrom3PartyAuth(rideRequest) ;
-        if (user.isUserProfileComplete ) {  // User Profile at Database is complete
+            .withSession(request.session + (UsrTable.names.OAUTH_ID -> userFromDb.oauth_id.get) 
+                                         + (UsrTable.names.IS_PROFILE_COMPLETE -> UsrTable.values.PROFILE_IN_COMPLETE)
+                                         + (UsrTable.names.USR_ID   -> userFromDb.usr_id.get)
+                        )
+            .flashing( "flashMsg" -> "Please complete your profile" , "flashMsgType" -> "warn")
           result
-            .withSession(request.session + ("isProfileComplete" -> RideRequest.ProfileComplete) + ("profile.id" -> user.oauth_id.get))
-            .flashing( "flashMsg" -> ("Welcome" + user.first_name) , "flashMsgType" -> "info")
-        }
-        else // User Profile at Database is not complete
-	{
-          Ok(views.html.profile(user))
-          //Redirect(routes.HomeController.profile(user))
-            .withSession(request.session + ("profile.id" -> user.oauth_id.get) + ("isProfileComplete" -> RideRequest.ProfileInComplete))
-              .flashing( "flashMsg" -> "Please complete your profile" , "flashMsgType" -> "warn")
         }
     }
   }

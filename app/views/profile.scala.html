@@ -9,8 +9,8 @@
     <dd>
       <div class=formentry>
       <br/>
-      <div class="center f15"  noshow=@{ saved} >Please Complete User Profile</div>
-      <div class="center f15"  noshow=@{!saved} >User Profile Saved</div>
+      <div class="center f15"  hide=@{ saved} >Please Complete User Profile</div>
+      <div class="center f15"  hide=@{!saved} >User Profile Saved</div>
       <form action="@{if (saved) "/" else "/saveprofile"}" method="POST" >
         <dl class=" error" id="last_name_field"> 
           <dt><label for="last_name">Last Name</label></dt>
@@ -29,7 +29,7 @@
           <dt><label for="email">Email (required) </label></dt>
           <dd>
               <input type="email" id=email name=email value="@usr.email"  placeholder="Email Address" required 
-                   pattern="^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-]{1,30}\.){1,4}([a-zA-Z]{2,5})$" @{if (saved) "readonly" else ""} /> 
+                   pattern="@{UsrTable.values.EMAIL_PATTERN}" @{if (saved) "readonly" else ""} /> 
           </dd>
         </dl>
         <br/>

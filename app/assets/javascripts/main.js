@@ -291,38 +291,38 @@ function urlEncodedData(formData){
         return urlEncodedData;
 }
 
-function validatenewoffer(form) {
-	console.log("INFO 201807142230 validatenewoffer enter " ) ; 
+function validatenewtrip(form) {
+	console.log("INFO 201807142230 validatenewtrip enter " ) ; 
         var formData 	= getFormData(form);
         distance	= formData.get("distance") ;
-        trip_start 	= Date.parse(formData.get("trip_start"))/(24.0*60*60*1000) ; // days from epoch
+        start_date 	= Date.parse(formData.get("start_date"))/(24.0*60*60*1000) ; // days from epoch
         departure_time  = formData.get("departure_time ") ;
         seats   	= formData.get("seats") ;
         price   	= formData.get("price") ;
-        recurring    	= formData.get("recurring") ;
-        trip_end     	= Date.parse(formData.get("trip_end"))/(24.0*60*60*1000) ; // days from epoch
-        day0      	= formData.get("day0") ;
-        day1      	= formData.get("day1") ;
-        day2      	= formData.get("day2") ;
-        day3      	= formData.get("day3") ;
-        day4      	= formData.get("day4") ;
-        day5      	= formData.get("day5") ;
-        day6      	= formData.get("day6") ;
+        recur_ind    	= formData.get("recur_ind") ;
+        end_date     	= Date.parse(formData.get("end_date"))/(24.0*60*60*1000) ; // days from epoch
+        day0_ind      	= formData.get("day0_ind") ;
+        day1_ind      	= formData.get("day1_ind") ;
+        day2_ind      	= formData.get("day2_ind") ;
+        day3_ind      	= formData.get("day3_ind") ;
+        day4_ind      	= formData.get("day4_ind") ;
+        day5_ind      	= formData.get("day5_ind") ;
+        day6_ind      	= formData.get("day6_ind") ;
 
 	nowtime		= Math.floor(Date.now()/(24.0*60*60*1000)) ; // days from epoch
 
-	console.log("INFO 201807142019 trip_start nowtime = " + trip_start + " " +  nowtime ) ; 
-	console.log("INFO 201807142019 trip_start - nowtime = " + (trip_start - nowtime ) ) ; 
+	console.log("INFO 201807142019  nowtime = " + start_date + " " +  nowtime ) ; 
+	console.log("INFO 201807142019 start_date - nowtime = " + (start_date - nowtime ) ) ; 
 	if(distance ==="" ) {
 	  console.log("ERROR 201807142049 distance unset") ; 
 	  formData = null;
 	}
-	else if( isNaN(trip_start)  ) {
-	  console.log("ERROR 201807142049 trip_start unset") ; 
+	else if( isNaN(start_date)  ) {
+	  console.log("ERROR 201807142049 start_date unset") ; 
 	  formData = null;
 	}
-        else if(trip_start - nowtime < -1) { 
-	  console.log("ERROR 201807142019 trip_start -  nowtime =" + (trip_start - nowtime) +" < -1" ) ; 
+        else if(start_date - nowtime < -1) { 
+	  console.log("ERROR 201807142019 start_date -  nowtime =" + (start_date - nowtime) +" < -1" ) ; 
 	  formData = null;
 	}
 	else if(departure_time ==="" ) 
@@ -350,22 +350,22 @@ function validatenewoffer(form) {
 	  console.log("ERROR 201807142049 price out of range") ; 
 	  formData = null;
 	}
-        else if (recurring ==="on" && isNaN(trip_end) ) 
+        else if (recur_ind ==="on" && isNaN(end_date) ) 
 	{
-	  console.log("ERROR 201807142049 recurring but trip_end unset") ; 
+	  console.log("ERROR 201807142049 recurring but end_date unset") ; 
 	  formData = null;
 	}
-        else if (recurring ==="on" && (trip_end < trip_start)   ) 
+        else if (recur_ind ==="on" && (end_date < start_date)   ) 
         {
-	  console.log("ERROR 201807142020  trip_end < trip_start " );
+	  console.log("ERROR 201807142020  end_date < start_date " );
 	  formData = null;
  	}
-        else if (recurring ==="on" && (trip_end - trip_start) > 92 ) 
+        else if (recur_ind ==="on" && (end_date - start_date) > 92 ) 
         {
-	  console.log("ERROR 201807142301  trip_end - trip_start = " + (trip_end - trip_start) + " > 92" );
+	  console.log("ERROR 201807142301  end_date - start_date = " + (end_date - start_date) + " > 92" );
 	  formData = null;
  	}
-        else if (recurring ==="on" && day0 !== "on" && day1 !== "on" && day2 !== "on" && day3 !== "on" && day4 !== "on" && day5 !== "on" && day6 !== "on" ) {
+        else if (recur_ind ==="on" && day0_ind !== "on" && day1_ind !== "on" && day2_ind !== "on" && day3_ind !== "on" && day4_ind !== "on" && day5_ind !== "on" && day6_ind !== "on" ) {
 	  console.log("ERROR 201807142027  recurring but no day of week is selected" );
 	  formData = null;
         }
@@ -373,11 +373,13 @@ function validatenewoffer(form) {
 	if (formData === null) 
         {
 	  document.getElementById("submit").disabled=true;
+          console.log("ERROR 201807291017 validatenewtrip failed") ;
 	  return false ;
  	}
 	else 
 	{
 	  document.getElementById("submit").disabled=false;
+          console.log("INFO 201807291018 validatenewtrip passed") ;
 	  return true;
 	}
 	//return formData;
