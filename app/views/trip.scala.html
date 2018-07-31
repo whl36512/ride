@@ -1,0 +1,139 @@
+@import models.db.tables.Trip
+@import models.gui.Gui
+
+@(trip: Trip=Trip(p1=Trip.P1(departure_time=Some("09:00"), seats=Some("3"), price=Some("0.1") )), saved: Boolean=false )(implicit flash: Flash ,request: Request[AnyContent] )
+
+@main("Rideshare made easy") {
+
+<div  id=trip >
+      <div class=formentry>
+      <div class="center f12" hide=@{saved } >New Trip Information</div>
+      <div class="center f12" hide=@{!saved} >Trip Saved</div>
+      <form action="@{if(saved) "/" else "/savetrip"}" method="POST"  onfocusout="validatenewtrip(this)" >
+        <dl class=" error" id="start_loc_field"> 
+          <dt><label for="start_loc">From (required) </label></dt>
+          <dd>
+              <input type="text" id="start_loc" name="start_loc" value="@{trip.p1.start_loc}" placeholder="From"  required onblur="geocode(this)" @{readonly}/>
+          </dd>
+          <dd>
+              <input type="text" id="start_lat" class="latlon" name="start_lat" value="@{trip.p1.start_lat}"  readonly />
+              <input type="text" id="start_lon" class="latlon" name="start_lon" value="@{trip.p1.start_lon}"  readonly />
+          </dd>
+          <dd>
+              <textarea id="start_display_name" class="readOnly display_name" name="start_display_name" readnly style="background-color:rgba(0,0,0,0); border:none" >@{trip.p1.start_display_name}</textarea>
+          </dd>
+        </dl>
+
+        <dl class=" error" id="end_loc_field">
+          <dt><label for="to">To (required) </label></dt>
+          <dd>
+              <input type="text" id="end_loc" name="end_loc" value="@{trip.p1.end_loc}" size="50" placeholder="To"  required onblur="geocode(this)" @{readonly}/>
+          </dd>
+          <dd>
+              <input type="text" id=end_lat class="latlon" name="end_lat" value="@{trip.p1.end_lat}"  readonly/>
+              <input type="text" id=end_lon class="latlon" name="end_lon" value="@{trip.p1.end_lon}"  readonly/>
+          </dd>
+          <dd>
+              <textarea id=end_display_name name="end_display_name" readonly style="background-color:rgba(0,0,0,0); border:none;">@{trip.p1.end_display_name}</textarea>
+          </dd>
+        </dl>
+        <dl class=" error" id="distance_field">
+          <dt><label for="distance">Distance (miles) </label></dt>
+          <dd>
+              <input type="text" id=distance name="distance" value="@{trip.p1.distance}"  placeholder="no route found" readonly /> 
+          </dd>
+        </dl>
+        <dl class=" error" id="start_date_field">
+          <dt><label for="start_date">Start Date (required)</label></dt>
+          <dd>
+          <input type="date" id="start_date" name="start_date" value="@{trip.p1.start_date}" required @{readonly}/>
+          </dd>
+        </dl>
+        <dl class=" error" id="departure_time_field">
+          <dt><label for="departure_time">Departure Time (required)</label></dt>
+          <dd>
+            <input type="time" id="departure_time" name="departure_time" value="@{trip.p1.departure_time}" step="60" required @{readonly}/>
+          </dd>
+        </dl>
+
+        <dl class=" error" id="seats_field">
+          <dt><label for="seats">Available Seats (required, min 1, max 6)</label></dt>
+          <dd>
+		<input type="number" id="seats" name="seats" value="@{trip.p1.seats}" min="1" max="6" step=1 @{readonly}/>
+          </dd>
+        </dl>
+        <dl class=" error" id="price_field">
+          <dt><label for="price">Price (required, min 0.0, max 0.2) </label></dt>
+          <dd>
+		<input type="number" id="price" name="price" value="@{trip.p1.price}" min="0" max="0.20" step=0.01 @{readonly} /> per mile
+          </dd>
+        </dl>
+
+        <dl class=" error" id="recur_ind">
+          <dt><label for="recurring">Recurring: </label>
+            <input type="checkbox" id="recur_ind" name="recur_ind" onclick="toggleDisplayByCheck(this)" @{Gui.checkbox_status(trip.p2.recur_ind)}  @{readonly} />
+		</dt>
+        </dl>
+
+	<div id=toggleBy-recur_ind @toggle >
+          <dl class=" error" id="end_date_field">
+            <dt><label for="end_date">End Date (must be within 92 days after Start Date)</label></dt>
+            <dd>
+            <input type="date" id="end_date" name="end_date" value="@{trip.p1.end_date}" @{readonly} />
+            </dd>
+          </dl>
+  
+          <dl class=" error" >
+            <dd>
+              <input type="checkbox" id="day0_ind" name="day0_ind" @{readonly} @{Gui.checkbox_status(trip.p2.day0_ind)}  />Sunday
+            </dd>
+            <dd>
+              <input type="checkbox" id="day1_ind" name="day1_ind" @{readonly} @{Gui.checkbox_status(trip.p2.day1_ind)} />Monday
+            </dd>
+            <dd>
+              <input type="checkbox" id="day2_ind" name="day2_ind" @{readonly} @{Gui.checkbox_status(trip.p2.day2_ind)} />Tueday
+            </dd>
+            <dd>
+              <input type="checkbox" id="day3_ind" name="day3_ind" @{readonly} @{Gui.checkbox_status(trip.p2.day3_ind)} />Wednesday
+            </dd>
+            <dd>
+              <input type="checkbox" id="day4_ind" name="day4_ind" @{readonly} @{Gui.checkbox_status(trip.p2.day4_ind)} />Thursday
+            </dd>
+            <dd>
+              <input type="checkbox" id="day5_ind" name="day5_ind" @{readonly} @{Gui.checkbox_status(trip.p2.day5_ind)} />Friday
+            </dd>
+            <dd>
+              <input type="checkbox" id="day6_ind" name="day6_ind" @{readonly} @{Gui.checkbox_status(trip.p2.day6_ind)} />Saturday
+            </dd>
+          </dl>
+	</div>
+	<dl class=" error" id="description_field">
+          <dt><label for="description">Description</label></dt>
+          <dd>
+            <textarea name=description placeholder="For example, non-smoking, female only, flexible time, flexible pickup,etc" @{readonly} >@{trip.p1.description} </textarea>
+          </dd>
+        </dl>
+        <br/>
+        <input type="submit" id=submit value="@{if(saved)"Ok" else "Publish"} " onClick="return validatenewtrip(this.parentNode);  " @disabled />
+        <br/>
+        <br/>
+      </form>
+      </div>
+      
+</div>
+}
+
+@readonly= @{
+  if (saved) "readonly"
+  else ""
+}
+
+@toggle = @{
+  if (saved) ""
+  else """ class=toggle """
+}
+
+@disabled = @{
+  if (saved) ""
+  else """ disabled  """
+}

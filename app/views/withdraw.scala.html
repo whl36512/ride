@@ -1,0 +1,75 @@
+@import models.db.tables.UsrTable
+@import models.db.tables.Money_trnx
+
+@(user: UsrTable=UsrTable(), money_trnx: Money_trnx= Money_trnx(requested_amount=Some("10")) , general_info_only: Boolean= false, saved: Boolean = false)( implicit flash: Flash, request: Request[AnyContent] )
+
+@main("Rideshare made easy") {
+
+  <div class="centerblock" id=withdraw >
+    <div class="center f15">Withdraw Money</div>
+    <p/>
+    Deposit and withdraw are done through the Zelle network, offered by many banks, such as
+    Chase Bank's QuickPay with Zelle, as well as Bank of America, US Bank, PNC Bank, and other major banks.
+    <p/>
+    You must have an email address registered at your bank to receive money.
+    <p/>
+    If you have a positive balance in you account, you can request a full or partial withdraw of the balance.
+    <p/>
+  
+    <div hide=@general_info_only>
+      <div class="center f12">Withdraw Request <div hide=@{!saved}>Received</div> </div>
+        <dl>
+          <dd>
+            <div class=formentry>
+              <br/>
+              <form action="@{if (saved) "/" else "/savewithdraw"}" method="POST" >
+                <dl class=" error" id="last_name_field"> 
+                  <dt><label for="last_name">Last Name</label></dt>
+                  <dd>
+                      <input type="text" id="last_name" name="last_name" value="@{user.last_name}" size="30" readonly />
+                  </dd>
+                </dl>
+        
+                <dl class=" error" id="first_name_field">
+                  <dt><label for="to">First Name</label></dt>
+                  <dd>
+                    <input type="text" id="first_name" name="first_name" value="@{user.first_name}" size="30" readonly />
+                  </dd>
+                </dl>
+                <dl class=" error" id="balance_field">
+                  <dt><label for="to">Current Balance</label></dt>
+                  <dd>
+                    $ <input type="text" id="balance" name="balance" value="@{user.balance}" size="30" readonly />
+                  </dd>
+                </dl>
+                <dl class=" error" id="bank_email_field">
+                  <dt><label for="bank_email">Banking Email (required) </label></dt>
+                  <dd>
+                      <input type="email" id=bank_email name=bank_email value="@{user.bank_email}"  placeholder="Banking Email Address" required 
+                           pattern="@{UsrTable.values.EMAIL_PATTERN}" @{if (saved) "readonly" else ""} /> 
+                  </dd>
+                </dl>
+                <dl class=" error" id="requested_amount_field">
+                  <dt><label for="requested_amount">Amount (required, in $10 incremental, min=10, max=100 )</label></dt>
+                  <dd>
+                        $ <input type="number" id="requested_amount" name="requested_amount" value="@{money_trnx.requested_amount}" min="10" max="100" step=10 @{if (saved || !sufficient_balance ) "readonly" else ""} required />
+                  </dd>
+                </dl>
+        
+                <br/>
+                <input type="submit" value="@{if (saved) "Ok" else "Submit"}"  @{if(!sufficient_balance) "disabled" }/>
+                <br/>
+                <br/>
+              </form>
+            </div>
+          </dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+}
+
+@sufficient_balance =@{
+  if (user.balance.getOrElse("-1").toDouble > 0.0001)  true
+  else false
+}
